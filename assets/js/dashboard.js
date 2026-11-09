@@ -9,13 +9,13 @@ import { WorldMap } from './worldmap.js';
 const COST_COLORS = ['#5a6b85', '#7c8aa3', '#3e4d63', '#8e9bb0', '#2c394b', '#b06a6a', '#46556d'];
 
 export class Dashboard {
+  // 대시보드 상태를 준비하고 앱의 계산 결과 변경을 구독한다.
   constructor(root, app) {
     this.root = root;
     this.app = app;
     this.idx = 0;
     this.selected = null;
     this.hist = {};
-    this.live = [];
     this.timers = [];
     this.build();
     window.__dash = this;   // handy for debugging in the browser console
@@ -54,7 +54,7 @@ export class Dashboard {
         </aside>
         <main class="dash-center">
           <div class="twin" id="d-twin">
-            <div class="twin-hud"><div class="hud-live"><b id="d-live">-</b><svg id="d-live-spark" aria-hidden="true"></svg></div><div class="hud-clock" id="d-clock"></div></div>
+            <div class="twin-hud"><div class="hud-live"><b id="d-live">-</b></div><div class="hud-clock" id="d-clock"></div></div>
             <div class="twin-legend" aria-hidden="true"><span class="n"><i></i>정상</span><span class="w"><i></i>고부하 90%+</span><span class="c"><i></i>병목 100%+</span></div>
             <div class="twin-banner" id="d-banner" hidden></div>
             <div class="twin-scan" id="d-scan"></div>
@@ -81,7 +81,7 @@ export class Dashboard {
       img: $r('.stage-hero img'), title: $r('#d-title'), tag: $r('#d-tag'),
       R: $r('#d-R'), Rr: $r('#d-R-range'), up: $r('#d-up'), inK: $r('#d-in-k'), in: $r('#d-in'), outK: $r('#d-out-k'), out: $r('#d-out'),
       ai: $r('#d-ai'), reset: $r('#d-reset'), scen: $r('#d-scen'), mchips: $r('#d-mchips'), mname: $r('#d-mname'), mstate: $r('#d-mstate'), params: $r('#d-params'),
-      twin: $r('#d-twin'), live: $r('#d-live'), liveSpark: $r('#d-live-spark'), clock: $r('#d-clock'), banner: $r('#d-banner'), scan: $r('#d-scan'),
+      twin: $r('#d-twin'), live: $r('#d-live'), clock: $r('#d-clock'), banner: $r('#d-banner'), scan: $r('#d-scan'),
       view: $r('#d-view'), quality: $r('#d-quality'), hint: $r('#d-hint'), flow: $r('#d-flow'), flowSum: $r('#d-flow-sum'),
       kpis: $r('#d-kpis'), season: $r('#d-season'), seasonH: $r('#d-season-h'), mapPanel: $r('#d-map-panel'), map: $r('#d-map'), util: $r('#d-util'), cost: $r('#d-cost'), plH: $r('#d-pl-h'), log: $r('#d-log'),
     };
@@ -150,7 +150,7 @@ export class Dashboard {
       E.seasonH.textContent = st.months.labels[0].includes('분기') ? '분기별 매출' : '월별 매출';
       if (st.key === 'auction') E.seasonH.textContent = '월별 거래액';
       E.mapPanel.hidden = st.key !== 'distribution';
-      this.hist = {}; this.live = [];
+      this.hist = {};
       this.buildScenarios();
       this.buildMachineChips();
       this.flow.build(st);
@@ -189,9 +189,7 @@ export class Dashboard {
       const r = this.result();
       const last = r.machines[r.machines.length - 1];
       const v = last.processed * last.def.disp.f * (1 + (Math.random() - 0.5) * 0.05);
-      this.live.push(v); if (this.live.length > 40) this.live.shift();
       this.el.live.textContent = `${v >= 100 ? Math.round(v).toLocaleString('ko-KR') : v.toFixed(1)} ${last.def.disp.u}`;
-      sparkline(this.el.liveSpark, this.live, { w: 90, h: 24 });
       this.el.clock.textContent = `${clock()} | ${this.st.place}`;
     };
     tickLive();
@@ -459,14 +457,14 @@ export class Dashboard {
     if (st.key === 'distribution') this.map.update(r);
   }
 
-  // 단계별 핵심 지표와 기본 설정 대비 변화를 표시한다.
+  // 단계별 지표를 갱신하고 매출, ROI, 영업이익에만 변화 그래프를 표시한다.
   renderKpis(r, base, reason) {
     const st = this.st, E = this.el;
     const ex = st.extra(r);
     const defs = [
-      { id: 'rev', label: st.key === 'auction' ? '거래액 (낙찰 총액)' : '매출액', v: r.headline, b: base.headline, f: money, hero: true },
-      { id: 'roi', label: 'ROI (연간)', v: r.roi * 100, b: base.roi * 100, f: (v) => ({ v: v.toFixed(1), u: '%' }), pp: true },
-      { id: 'profit', label: st.key === 'auction' ? '영업이익 (수수료)' : '영업이익', v: r.profit, b: base.profit, f: money },
+      { id: 'rev', label: st.key === 'auction' ? '거래액 (낙찰 총액)' : '매출액', v: r.headline, b: base.headline, f: money, hero: true, trend: true },
+      { id: 'roi', label: 'ROI (연간)', v: r.roi * 100, b: base.roi * 100, f: (v) => ({ v: v.toFixed(1), u: '%' }), pp: true, trend: true },
+      { id: 'profit', label: st.key === 'auction' ? '영업이익 (수수료)' : '영업이익', v: r.profit, b: base.profit, f: money, trend: true },
       { id: 'yield', label: '수율', v: r.yield * 100, b: base.yield * 100, f: (v) => ({ v: v.toFixed(1), u: '%' }), pp: true },
       { id: 'out', label: st.outLabel, v: r.out, b: base.out, f: (v) => ({ v: count(v), u: st.outUnit }) },
       { id: 'q', label: '품질 등급', v: r.Qeff * 100, b: base.Qeff * 100, f: (v) => ({ v: grade(v / 100), u: `${v.toFixed(0)}점` }), pp: true, unitless: true },
@@ -481,9 +479,12 @@ export class Dashboard {
           h('div', { class: 'lb' }, h('span', { class: 'lbt' }, d.label)),
           h('div', { class: 'vl' }, h('b'), h('span')),
           h('div', { class: 'dl' }));
-        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('class', 'spark'); svg.setAttribute('aria-hidden', 'true');
-        tile.append(svg);
+        let svg = null;
+        if (d.trend) {
+          svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+          svg.setAttribute('class', 'spark'); svg.setAttribute('aria-hidden', 'true');
+          tile.append(svg);
+        }
         E.kpis.append(tile);
         this.kpiEls[d.id] = { tile, b: tile.querySelector('.vl b'), u: tile.querySelector('.vl span'), dl: tile.querySelector('.dl'), lbt: tile.querySelector('.lbt'), svg };
       }
@@ -493,12 +494,14 @@ export class Dashboard {
       const fv = d.f(d.v);
       k.lbt.textContent = d.label;
       k.b.textContent = fv.v; k.u.textContent = fv.u;
-      const hist = (this.hist[d.id] ||= []);
-      if (reason !== 'select' && isFinite(d.v)) {
-        if (!hist.length || Math.abs(hist[hist.length - 1] - d.v) > 1e-9) { hist.push(d.v); if (hist.length > 30) hist.shift(); }
+      if (k.svg) {
+        const hist = (this.hist[d.id] ||= []);
+        if (reason !== 'select' && isFinite(d.v)) {
+          if (!hist.length || Math.abs(hist[hist.length - 1] - d.v) > 1e-9) { hist.push(d.v); if (hist.length > 30) hist.shift(); }
+        }
+        if (hist.length < 2) hist.unshift(d.b ?? d.v);
+        sparkline(k.svg, hist, { color: st.hue });
       }
-      if (hist.length < 2) hist.unshift(d.b ?? d.v);
-      sparkline(k.svg, hist, { color: st.hue });
       if (d.b != null && isFinite(d.b)) {
         const diff = d.pp ? d.v - d.b : d.b !== 0 ? ((d.v - d.b) / Math.abs(d.b)) * 100 : 0;
         const up = diff > 0.05, down = diff < -0.05;

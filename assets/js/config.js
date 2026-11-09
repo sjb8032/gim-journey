@@ -253,7 +253,7 @@ export const STAGES = [
       ['age', '숙성 탱크 #{rand:1:4} 교반 {age.stir} rpm | 염도 {age.salt}%'],
       ['form', '초제 {form.speed}장/분 | 장당 {form.weight}g'],
       ['dry', '건조실 {dry.temp}°C | 습도 {rand:18:34}% | 풍속 {dry.wind}m/s'],
-      ['vision', '비전검사 불량 {rand:1:7}장 제거 (구멍 | 이물)'],
+      ['vision', '비전검사 불량 {rand:1:7}장 제거 (구멍, 이물)'],
       ['pack', '{rand:120:420}속 결속 완료 | 팔레트 #{rand:10:99}'],
     ],
   },
@@ -318,8 +318,8 @@ export const STAGES = [
         ] },
     ],
     scenarios: [
-      { id: 'oil', name: '식용유값 급등', icon: 'drop', desc: '참기름 | 식용유 원가가 40% 올랐습니다.', materialMul: 1.4 },
-      { id: 'claim', name: '이물 혼입 증가', icon: 'warn', desc: '원초에 패각 | 비닐 같은 이물이 늘어 선별 부담이 커졌습니다.', qMul: 0.9, lossAdd: { foreign: 0.03 } },
+      { id: 'oil', name: '식용유값 급등', icon: 'drop', desc: '참기름과 식용유 원가가 40% 올랐습니다.', materialMul: 1.4 },
+      { id: 'claim', name: '이물 혼입 증가', icon: 'warn', desc: '원초에 패각, 비닐 같은 이물이 늘어 선별 부담이 커졌습니다.', qMul: 0.9, lossAdd: { foreign: 0.03 } },
       { id: 'kfood', name: 'K-푸드 붐', icon: 'trend', desc: '해외 바이어 주문이 늘어 출고가가 오릅니다.', priceMul: 1.15 },
     ],
     // 선별 배출률과 봉당 원가를 보조 지표로 표시한다.
@@ -328,7 +328,7 @@ export const STAGES = [
       return { label: '이물 | 불량 배출', value: ((rej / Math.max(1e-9, r.flowIn)) * 100).toFixed(1), unit: '%', note: `봉당 원가 ${Math.round(r.cost / Math.max(1, r.out)).toLocaleString('ko-KR')}원` };
     },
     logs: [
-      ['foreign', '광학 선별 | 이물 {rand:1:6}건 배출 (패각 | 비닐 | 머리카락) | 에어 {foreign.air} bar'],
+      ['foreign', '광학 선별 | 이물 {rand:1:6}건 배출 (패각, 비닐, 머리카락) | 에어 {foreign.air} bar'],
       ['defect', '불량 배출 | 탄 김 {rand:3:15}장, 파손 {rand:2:10}장 → 불량함'],
       ['roast1', '1차 굽기 {roast1.temp}°C | 벨트 {roast1.belt} m/min'],
       ['season', '기름 {season.oil}g/장 | 소금 {season.salt}g/장 | 참기름 {season.sesame}%'],
