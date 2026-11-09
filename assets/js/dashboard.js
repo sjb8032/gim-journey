@@ -1,5 +1,5 @@
 // Stage dashboard: inputs · digital twin · process flow · KPIs · charts · log.
-import { STAGES, HARVEST_RANGE } from './config.js';
+import { STAGES } from './config.js';
 import { optimize, grade, defaultValues, effValue } from './sim.js';
 import { $, h, icon, money, moneyStr, count, fmtStep, clock, tween, easeInOut, toast, setImg, store, reducedMotion } from './util.js';
 import { sparkline, lineChart, utilBars, costBar } from './charts.js';
@@ -35,14 +35,8 @@ export class Dashboard {
       <div class="dash">
         <aside class="dash-left">
           <div class="stage-hero"><div class="bg"><img alt=""></div><h2 id="d-title"></h2><p class="tag" id="d-tag"></p></div>
-          <div class="panel ctl p-harvest">
-            <div class="ctl-label"><label for="d-R-range">재배량 (물김 기준)</label><span class="ctl-value"><output id="d-R" for="d-R-range">600</output><span>톤</span></span></div>
-            <input type="range" class="range" id="d-R-range" min="${HARVEST_RANGE[0]}" max="${HARVEST_RANGE[1]}" step="${HARVEST_RANGE[2]}">
-            <div class="chain-io"><div><span class="k" id="d-in-k">투입</span><b id="d-in">-</b></div><span class="arr" aria-hidden="true">→</span><div><span class="k" id="d-out-k">산출</span><b id="d-out">-</b></div></div>
-            <a class="up-hint" id="d-up" hidden></a>
-          </div>
-          <div class="panel ctl p-ai">
-            <button class="btn-ai" id="d-ai">${icon('spark')}<span>AI 최적화</span><span class="sub">파라미터 자동 튜닝</span></button>
+          <button class="btn-ai p-ai" id="d-ai" type="button">${icon('spark')}<span>AI 최적화</span><span class="sub">파라미터 자동 튜닝</span></button>
+          <div class="panel ctl p-scenarios">
             <div class="ctl-label scenario-head"><span>돌발 시나리오</span><button class="btn btn-quiet btn-reset" id="d-reset" type="button" aria-label="현재 단계의 설비 설정과 시나리오 초기화">${icon('reset')}<span>초기화</span></button></div>
             <div class="chips" id="d-scen"></div>
           </div>
@@ -79,14 +73,12 @@ export class Dashboard {
     const $r = (s) => r.querySelector(s);
     this.el = {
       img: $r('.stage-hero img'), title: $r('#d-title'), tag: $r('#d-tag'),
-      R: $r('#d-R'), Rr: $r('#d-R-range'), up: $r('#d-up'), inK: $r('#d-in-k'), in: $r('#d-in'), outK: $r('#d-out-k'), out: $r('#d-out'),
       ai: $r('#d-ai'), reset: $r('#d-reset'), scen: $r('#d-scen'), mchips: $r('#d-mchips'), mname: $r('#d-mname'), mstate: $r('#d-mstate'), params: $r('#d-params'),
       twin: $r('#d-twin'), live: $r('#d-live'), clock: $r('#d-clock'), banner: $r('#d-banner'), scan: $r('#d-scan'),
       view: $r('#d-view'), quality: $r('#d-quality'), hint: $r('#d-hint'), flow: $r('#d-flow'), flowSum: $r('#d-flow-sum'),
       kpis: $r('#d-kpis'), season: $r('#d-season'), seasonH: $r('#d-season-h'), mapPanel: $r('#d-map-panel'), map: $r('#d-map'), util: $r('#d-util'), cost: $r('#d-cost'), plH: $r('#d-pl-h'), log: $r('#d-log'),
     };
     const E = this.el;
-    E.Rr.addEventListener('input', () => this.app.setR(+E.Rr.value));
     E.ai.addEventListener('click', () => this.runAI());
     E.reset.addEventListener('click', () => this.resetStage());
     E.view.addEventListener('click', () => this.twin?.fitView(true));
@@ -146,7 +138,6 @@ export class Dashboard {
       setImg(E.img, window.__ASSETS?.stages?.[st.key]);
       E.title.textContent = st.title;
       E.tag.textContent = st.tagline;
-      E.inK.textContent = st.inLabel; E.outK.textContent = st.outLabel;
       E.seasonH.textContent = st.months.labels[0].includes('분기') ? '분기별 매출' : '월별 매출';
       if (st.key === 'auction') E.seasonH.textContent = '월별 거래액';
       E.mapPanel.hidden = st.key !== 'distribution';
@@ -401,17 +392,6 @@ export class Dashboard {
     if (!this.active) return;
     const r = this.result(), st = this.st, E = this.el, S = this.app.state;
     const base = this.app.baseline[this.idx];
-    E.R.textContent = S.R.toLocaleString('ko-KR');
-    E.Rr.value = S.R;
-    E.Rr.style.setProperty('--p', `${((S.R - HARVEST_RANGE[0]) / (HARVEST_RANGE[1] - HARVEST_RANGE[0])) * 100}%`);
-    E.in.textContent = `${count(r.inSeason)} ${st.inUnit}`;
-    E.out.textContent = `${count(r.out)} ${st.outUnit}`;
-    const upB = this.app.results.slice(0, this.idx).filter((x) => x.maxUtil > 1).pop();
-    E.up.hidden = !upB;
-    if (upB) {
-      E.up.href = `#stage-${upB.st.no}`;
-      E.up.innerHTML = `${icon('warn')}<span>상류 병목 | ${upB.st.no}단계 ${upB.st.name} ${upB.bottleneck.def.name} ${Math.round(upB.maxUtil * 100)}%. 여기로 오는 물량이 막혀 있습니다.</span>`;
-    }
 
     // machine chip status + state pill
     for (const mm of r.machines) {
