@@ -343,7 +343,7 @@ export const STAGES = [
   {
     key: 'distribution', no: 6, name: '유통', en: 'DISTRIBUTION', hue: '#efdcae',
     title: '콜드체인 물류 | 수출', place: '스마트 물류센터 | 부산항', time: '19:30',
-    tagline: '물류센터에서 보관 | 분류해 국내 매장으로, 컨테이너에 실어 세계로 보냅니다.',
+    tagline: '물류센터에서 보관, 분류해 국내 매장으로, 컨테이너에 실어 세계로 보냅니다.',
     layout: 'line', env: 'port',
     flowUnit: '봉', days: 300,
     inLabel: '조미김 입고', inUnit: '봉', outLabel: '판매 출고', outUnit: '봉',
