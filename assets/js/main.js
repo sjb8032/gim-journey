@@ -54,7 +54,7 @@ function activate(name, arg) {
       .catch((e) => { console.error(e); views.data.querySelector('.data-body').innerHTML = '<p class="muted" style="padding:24px">데이터 뷰어를 불러오지 못했습니다.</p>'; });
   }
   if (name === 'journey') renderJourney();
-  const titles = { home: '김의 여정', journey: '김의 여정 | 여섯 단계', stage: `${STAGES[arg]?.name ?? ''} 공장 · 김의 여정`, data: '실험 데이터 · 김의 여정' };
+  const titles = { home: '김의 여정', journey: '김의 여정 | 여섯 단계', stage: `${STAGES[arg]?.name ?? ''} 공장 | 김의 여정`, data: '실험 데이터 · 김의 여정' };
   document.title = titles[name] || '김의 여정';
   current = { name, arg };
 }

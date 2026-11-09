@@ -23,18 +23,18 @@ export class Dashboard {
   }
 
   // ------------------------------------------------------------------ DOM
+  // 여섯 단계가 공유하는 대시보드와 조작 버튼을 구성한다.
   build() {
     const r = this.root;
     r.innerHTML = `
       <header class="topbar solid stage-top">
         <a class="back-link" href="#journey">${icon('arrowL')}<span>여정</span></a>
         <nav class="stepper" aria-label="여정 단계">${STAGES.map((s) => `<a href="#stage-${s.no}" style="--hue:${s.hue}" data-no="${s.no}"><span class="sw"></span><span class="n">${String(s.no).padStart(2, '0')}</span><span class="t">${s.name}</span></a>`).join('')}</nav>
-        <span class="sim-badge" title="화면의 수치는 시연용 시뮬레이션 추정치입니다">SIMULATION</span>
         <button class="icon-btn js-fs" aria-label="전체 화면">${icon('expand')}</button>
       </header>
       <div class="dash">
         <aside class="dash-left">
-          <div class="stage-hero"><div class="bg"><img alt=""></div><p class="eyebrow" id="d-eyebrow"></p><h2 id="d-title"></h2><p class="tag" id="d-tag"></p></div>
+          <div class="stage-hero"><div class="bg"><img alt=""></div><h2 id="d-title"></h2><p class="tag" id="d-tag"></p></div>
           <div class="panel ctl p-harvest">
             <div class="ctl-label"><label for="d-R-range">재배량 (물김 기준)</label><span class="ctl-value"><output id="d-R" for="d-R-range">600</output><span>톤</span></span></div>
             <input type="range" class="range" id="d-R-range" min="${HARVEST_RANGE[0]}" max="${HARVEST_RANGE[1]}" step="${HARVEST_RANGE[2]}">
@@ -43,7 +43,7 @@ export class Dashboard {
           </div>
           <div class="panel ctl p-ai">
             <button class="btn-ai" id="d-ai">${icon('spark')}<span>AI 최적화</span><span class="sub">파라미터 자동 튜닝</span></button>
-            <div class="ctl-label"><span>돌발 시나리오</span><button class="btn-quiet" id="d-reset" type="button">${'초기화'}</button></div>
+            <div class="ctl-label scenario-head"><span>돌발 시나리오</span><button class="btn btn-quiet btn-reset" id="d-reset" type="button" aria-label="현재 단계의 설비 설정과 시나리오 초기화">${icon('reset')}<span>초기화</span></button></div>
             <div class="chips" id="d-scen"></div>
           </div>
           <div class="panel p-machine">
@@ -54,7 +54,7 @@ export class Dashboard {
         </aside>
         <main class="dash-center">
           <div class="twin" id="d-twin">
-            <div class="twin-hud"><div class="hud-live"><span class="dot"></span><span class="lbl">LIVE</span><b id="d-live">-</b><svg id="d-live-spark" aria-hidden="true"></svg></div><div class="hud-clock" id="d-clock"></div></div>
+            <div class="twin-hud"><div class="hud-live"><b id="d-live">-</b><svg id="d-live-spark" aria-hidden="true"></svg></div><div class="hud-clock" id="d-clock"></div></div>
             <div class="twin-legend" aria-hidden="true"><span class="n"><i></i>정상</span><span class="w"><i></i>고부하 90%+</span><span class="c"><i></i>병목 100%+</span></div>
             <div class="twin-banner" id="d-banner" hidden></div>
             <div class="twin-scan" id="d-scan"></div>
@@ -62,15 +62,15 @@ export class Dashboard {
               <button class="icon-btn" id="d-view" aria-label="전체 보기" title="전체 보기">${icon('reset')}</button>
               <button class="icon-btn" id="d-quality" aria-label="그래픽 효과" title="그래픽 효과 켜기/끄기">${icon('layers')}</button>
             </div>
-            <div class="twin-hint" id="d-hint">드래그 회전 · 휠 확대 · 기계를 누르면 파라미터</div>
+            <div class="twin-hint" id="d-hint">드래그 회전 | 휠 확대 | 기계를 누르면 파라미터</div>
           </div>
           <div class="panel flow-panel"><div class="panel-h"><h3>공정 흐름도</h3><span class="flow-sum" id="d-flow-sum"></span></div><div class="flow-scroll" id="d-flow"></div></div>
         </main>
         <aside class="dash-right">
           <div class="kpis" id="d-kpis"></div>
-          <div class="panel p-season"><div class="panel-h"><h3 id="d-season-h">시즌 매출 추이</h3><div class="legend"><span><i style="background:var(--accent)"></i>현재 설정</span><span><i class="ln-dash"></i>기본 설정</span></div></div><div id="d-season"></div></div>
+          <div class="panel p-season"><div class="panel-h"><h3 id="d-season-h">월별 매출</h3><div class="legend"><span><i style="background:var(--accent)"></i>현재 설정</span><span><i class="ln-dash"></i>기본 설정</span></div></div><div id="d-season"></div></div>
           <div class="panel p-map" id="d-map-panel" hidden><div class="panel-h"><h3>수출 지도</h3><span class="eyebrow">부산항 출발</span></div><div id="d-map"></div></div>
-          <div class="panel p-util"><div class="panel-h"><h3>설비 가동률</h3><span class="eyebrow">눈금 = 설계 용량</span></div><div id="d-util"></div></div>
+          <div class="panel p-util"><div class="panel-h"><h3>설비 가동률</h3></div><div id="d-util"></div></div>
           <div class="panel p-cost"><div class="panel-h"><h3>손익 구조</h3><span class="eyebrow" id="d-pl-h"></span></div><div id="d-cost"></div></div>
           <div class="panel p-log"><div class="panel-h"><h3>운영 로그</h3><span class="eyebrow">LIVE</span></div><div class="log" id="d-log" aria-live="off"></div></div>
         </aside>
@@ -78,7 +78,7 @@ export class Dashboard {
 
     const $r = (s) => r.querySelector(s);
     this.el = {
-      img: $r('.stage-hero img'), eyebrow: $r('#d-eyebrow'), title: $r('#d-title'), tag: $r('#d-tag'),
+      img: $r('.stage-hero img'), title: $r('#d-title'), tag: $r('#d-tag'),
       R: $r('#d-R'), Rr: $r('#d-R-range'), up: $r('#d-up'), inK: $r('#d-in-k'), in: $r('#d-in'), outK: $r('#d-out-k'), out: $r('#d-out'),
       ai: $r('#d-ai'), reset: $r('#d-reset'), scen: $r('#d-scen'), mchips: $r('#d-mchips'), mname: $r('#d-mname'), mstate: $r('#d-mstate'), params: $r('#d-params'),
       twin: $r('#d-twin'), live: $r('#d-live'), liveSpark: $r('#d-live-spark'), clock: $r('#d-clock'), banner: $r('#d-banner'), scan: $r('#d-scan'),
@@ -128,6 +128,7 @@ export class Dashboard {
   }
 
   // ------------------------------------------------------------------ lifecycle
+  // 선택한 단계의 제목, 설비와 시뮬레이션 상태를 화면에 표시한다.
   show(idx) {
     const st = STAGES[idx];
     const changed = this.idx !== idx || !this.loaded;
@@ -143,12 +144,11 @@ export class Dashboard {
       E.img.removeAttribute('src');
       const fresh = E.img.cloneNode(); E.img.replaceWith(fresh); E.img = fresh;
       setImg(E.img, window.__ASSETS?.stages?.[st.key]);
-      E.eyebrow.textContent = `${String(st.no).padStart(2, '0')} · ${st.en} · ${st.place}`;
       E.title.textContent = st.title;
       E.tag.textContent = st.tagline;
       E.inK.textContent = st.inLabel; E.outK.textContent = st.outLabel;
-      E.seasonH.textContent = st.months.labels[0].includes('분기') ? '분기별 매출' : '시즌 월별 매출';
-      if (st.key === 'auction') E.seasonH.textContent = '시즌 월별 거래액';
+      E.seasonH.textContent = st.months.labels[0].includes('분기') ? '분기별 매출' : '월별 매출';
+      if (st.key === 'auction') E.seasonH.textContent = '월별 거래액';
       E.mapPanel.hidden = st.key !== 'distribution';
       this.hist = {}; this.live = [];
       this.buildScenarios();
@@ -157,7 +157,7 @@ export class Dashboard {
       const r = this.result();
       this.select(r.bottleneck?.util > 0.9 ? r.bottleneck.id : st.machines.find((m) => m.hero)?.id || st.machines[0].id, 'init');
       E.log.innerHTML = '';
-      this.log(st.machines[0].id, `${st.place} 디지털 트윈 연결 · 센서 ${st.machines.length * 4 + 3}개 동기화`, 'ai');
+      this.log(st.machines[0].id, `${st.place} 디지털 트윈 연결 | 센서 ${st.machines.length * 4 + 3}개 동기화`, 'ai');
       E.hint.style.opacity = '1';
       setTimeout(() => (E.hint.style.opacity = '0'), 6000);
     }
@@ -182,6 +182,7 @@ export class Dashboard {
 
   result() { return this.app.results[this.idx]; }
 
+  // 실시간 생산량, 시계와 운영 로그를 주기적으로 갱신한다.
   startTimers() {
     this.stopTimers();
     const tickLive = () => {
@@ -191,7 +192,7 @@ export class Dashboard {
       this.live.push(v); if (this.live.length > 40) this.live.shift();
       this.el.live.textContent = `${v >= 100 ? Math.round(v).toLocaleString('ko-KR') : v.toFixed(1)} ${last.def.disp.u}`;
       sparkline(this.el.liveSpark, this.live, { w: 90, h: 24 });
-      this.el.clock.textContent = `${clock()} · ${this.st.place}`;
+      this.el.clock.textContent = `${clock()} | ${this.st.place}`;
     };
     tickLive();
     this.timers.push(setInterval(tickLive, 1000));
@@ -241,6 +242,7 @@ export class Dashboard {
     this.syncBanner();
   }
 
+  // 돌발 시나리오를 전환하고 손익 변화와 알림을 표시한다.
   toggleScenario(s, btn) {
     const set = this.app.state.scen[this.st.key];
     const on = !set.has(s.id);
@@ -253,17 +255,18 @@ export class Dashboard {
     this.twin?.alarm?.(set.size > 0);
     if (on) {
       this.log(this.st.machines[0].id, `⚠ ${s.name} — ${s.desc}`, 'crit');
-      toast(`<b>${s.name}</b> · 이익 ${moneyStr(before.profit)} → ${moneyStr(after.profit)}. AI 최적화로 대응해 보세요.`, 4200, 'warn');
+      toast(`<b>${s.name}</b> | 이익 ${moneyStr(before.profit)} → ${moneyStr(after.profit)}. AI 최적화로 대응해 보세요.`, 4200, 'warn');
     } else this.log(this.st.machines[0].id, `${s.name} 상황 해제`, '');
   }
 
+  // 현재 활성화된 시나리오를 3D 화면의 안내 배너에 표시한다.
   syncBanner() {
     const st = this.st, set = this.app.state.scen[st.key];
     const act = st.scenarios.filter((s) => set.has(s.id));
     const b = this.el.banner;
     if (!act.length) { b.hidden = true; return; }
     b.hidden = false;
-    b.innerHTML = `${icon('warn')}<b>${act.map((s) => s.name).join(' · ')}</b><span>${act[act.length - 1].desc}</span>`;
+    b.innerHTML = `${icon('warn')}<b>${act.map((s) => s.name).join(' | ')}</b><span>${act[act.length - 1].desc}</span>`;
   }
 
   resetStage() {
@@ -340,6 +343,7 @@ export class Dashboard {
   }
 
   // ------------------------------------------------------------------ AI
+  // 최적화한 설비 설정을 적용하고 변경 내역과 ROI를 안내한다.
   runAI() {
     if (this.aiRunning) return;
     this.aiRunning = true;
@@ -351,7 +355,7 @@ export class Dashboard {
     E.ai.querySelector('span').textContent = 'AI 최적화 중…';
     E.scan.classList.remove('run'); void E.scan.offsetWidth; E.scan.classList.add('run');
     this.twin?.scan?.();
-    this.log(st.machines[0].id, `AI 최적화 시작 · 파라미터 ${st.machines.reduce((s, m) => s + m.params.length, 0)}개 탐색`, 'ai');
+    this.log(st.machines[0].id, `AI 최적화 시작 | 파라미터 ${st.machines.reduce((s, m) => s + m.params.length, 0)}개 탐색`, 'ai');
     const ms = st.machines;
     let lastSel = -1;
     const dur = reducedMotion() ? 10 : 2200;
@@ -383,10 +387,10 @@ export class Dashboard {
         }
         changes.sort((x, y) => y.w - x.w).slice(0, 3).reverse().forEach((c) => this.log(c.m.id, `${c.p.label} ${fmtStep(c.a, c.p.step)} → ${fmtStep(c.b, c.p.step)}${c.p.unit}`, 'ai'));
         const dRoi = (after.roi - before.roi) * 100;
-        this.log(ms[0].id, `AI 최적화 완료 · ROI ${(before.roi * 100).toFixed(1)}% → ${(after.roi * 100).toFixed(1)}%`, 'ai');
+        this.log(ms[0].id, `AI 최적화 완료 | ROI ${(before.roi * 100).toFixed(1)}% → ${(after.roi * 100).toFixed(1)}%`, 'ai');
         toast(dRoi > 0.05
-          ? `AI 최적화 완료 · ROI <b>${(before.roi * 100).toFixed(1)}% → ${(after.roi * 100).toFixed(1)}%</b> (+${dRoi.toFixed(1)}%p)`
-          : `이미 최적 상태에 가깝습니다 · ROI <b>${(after.roi * 100).toFixed(1)}%</b>`, 4200, 'spark');
+          ? `AI 최적화 완료 | ROI <b>${(before.roi * 100).toFixed(1)}% → ${(after.roi * 100).toFixed(1)}%</b> (+${dRoi.toFixed(1)}%p)`
+          : `이미 최적 상태에 가깝습니다 | ROI <b>${(after.roi * 100).toFixed(1)}%</b>`, 4200, 'spark');
         const best = store.get('best-' + st.key, -Infinity);
         if (after.roi > best) store.set('best-' + st.key, after.roi);
       },
@@ -394,6 +398,7 @@ export class Dashboard {
   }
 
   // ------------------------------------------------------------------ render
+  // 재배량과 설비 설정에 맞춰 대시보드 지표와 차트를 갱신한다.
   refresh(reason) {
     if (!this.active) return;
     const r = this.result(), st = this.st, E = this.el, S = this.app.state;
@@ -407,7 +412,7 @@ export class Dashboard {
     E.up.hidden = !upB;
     if (upB) {
       E.up.href = `#stage-${upB.st.no}`;
-      E.up.innerHTML = `${icon('warn')}<span>상류 병목 · ${upB.st.no}단계 ${upB.st.name} ${upB.bottleneck.def.name} ${Math.round(upB.maxUtil * 100)}%. 여기로 오는 물량이 막혀 있습니다.</span>`;
+      E.up.innerHTML = `${icon('warn')}<span>상류 병목 | ${upB.st.no}단계 ${upB.st.name} ${upB.bottleneck.def.name} ${Math.round(upB.maxUtil * 100)}%. 여기로 오는 물량이 막혀 있습니다.</span>`;
     }
 
     // machine chip status + state pill
@@ -427,7 +432,7 @@ export class Dashboard {
 
     this.flow.update(r, this.selected);
     const bn = r.bottleneck;
-    E.flowSum.innerHTML = `산출 <b>${count(r.out)} ${st.outUnit}</b> · ${st.key === 'auction' ? '거래액' : '매출'} <b>${moneyStr(r.headline)}</b> · 수율 <b>${(r.yield * 100).toFixed(1)}%</b>${bn ? ` · <span class="${bn.util > 1 ? 'crit' : bn.util > 0.9 ? 'warn' : ''}">최대 부하 ${bn.def.name} ${Math.round(bn.util * 100)}%</span>` : ''}`;
+    E.flowSum.innerHTML = `산출 <b>${count(r.out)} ${st.outUnit}</b> | ${st.key === 'auction' ? '거래액' : '매출'} <b>${moneyStr(r.headline)}</b>${bn ? ` | <span class="${bn.util > 1 ? 'crit' : bn.util > 0.9 ? 'warn' : ''}">최대 부하 ${bn.def.name} ${Math.round(bn.util * 100)}%</span>` : ''}`;
     if (this.twin?.ok && this.twin.stage === st) this.twin.update(r, S.values[st.key]);
     this.renderKpis(r, base, reason);
     lineChart(E.season, {
@@ -446,7 +451,7 @@ export class Dashboard {
       { name: st.key === 'farm' ? '채묘망 구입' : st.key === 'seed' ? '종자 원료' : '원료 매입', value: c.input, color: COST_COLORS[0] },
       { name: '에너지', value: c.energy, color: COST_COLORS[1] },
       { name: st.key === 'distribution' ? '물류비' : '부자재', value: c.material + c.logistics, color: COST_COLORS[2] },
-      { name: '인건비·고정비', value: c.fixed, color: COST_COLORS[3] },
+      { name: '인건비 | 고정비', value: c.fixed, color: COST_COLORS[3] },
       { name: '감가상각', value: c.dep, color: COST_COLORS[4] },
       ...(c.overtime > 0 ? [{ name: '초과 가동', value: c.overtime, color: COST_COLORS[5] }] : []),
       { name: '영업이익', value: Math.max(0, r.profit), color: st.hue },
@@ -454,12 +459,13 @@ export class Dashboard {
     if (st.key === 'distribution') this.map.update(r);
   }
 
+  // 단계별 핵심 지표와 기본 설정 대비 변화를 표시한다.
   renderKpis(r, base, reason) {
     const st = this.st, E = this.el;
     const ex = st.extra(r);
     const defs = [
       { id: 'rev', label: st.key === 'auction' ? '거래액 (낙찰 총액)' : '매출액', v: r.headline, b: base.headline, f: money, hero: true },
-      { id: 'roi', label: 'ROI (연간)', v: r.roi * 100, b: base.roi * 100, f: (v) => ({ v: v.toFixed(1), u: '%' }), pp: true, sub: isFinite(r.payback) ? `회수 ${r.payback.toFixed(1)}년` : '회수 불가' },
+      { id: 'roi', label: 'ROI (연간)', v: r.roi * 100, b: base.roi * 100, f: (v) => ({ v: v.toFixed(1), u: '%' }), pp: true },
       { id: 'profit', label: st.key === 'auction' ? '영업이익 (수수료)' : '영업이익', v: r.profit, b: base.profit, f: money },
       { id: 'yield', label: '수율', v: r.yield * 100, b: base.yield * 100, f: (v) => ({ v: v.toFixed(1), u: '%' }), pp: true },
       { id: 'out', label: st.outLabel, v: r.out, b: base.out, f: (v) => ({ v: count(v), u: st.outUnit }) },
@@ -472,14 +478,14 @@ export class Dashboard {
       this.kpiStage = st.key;
       for (const d of defs) {
         const tile = h('div', { class: `kpi ${d.hero ? 'hero' : ''}` },
-          h('div', { class: 'lb' }, h('span', { class: 'lbt' }, d.label), h('span', { class: 'sub' })),
+          h('div', { class: 'lb' }, h('span', { class: 'lbt' }, d.label)),
           h('div', { class: 'vl' }, h('b'), h('span')),
           h('div', { class: 'dl' }));
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         svg.setAttribute('class', 'spark'); svg.setAttribute('aria-hidden', 'true');
         tile.append(svg);
         E.kpis.append(tile);
-        this.kpiEls[d.id] = { tile, b: tile.querySelector('.vl b'), u: tile.querySelector('.vl span'), dl: tile.querySelector('.dl'), sub: tile.querySelector('.sub'), lbt: tile.querySelector('.lbt'), svg };
+        this.kpiEls[d.id] = { tile, b: tile.querySelector('.vl b'), u: tile.querySelector('.vl span'), dl: tile.querySelector('.dl'), lbt: tile.querySelector('.lbt'), svg };
       }
     }
     for (const d of defs) {
@@ -487,7 +493,6 @@ export class Dashboard {
       const fv = d.f(d.v);
       k.lbt.textContent = d.label;
       k.b.textContent = fv.v; k.u.textContent = fv.u;
-      k.sub.textContent = d.sub || '';
       const hist = (this.hist[d.id] ||= []);
       if (reason !== 'select' && isFinite(d.v)) {
         if (!hist.length || Math.abs(hist[hist.length - 1] - d.v) > 1e-9) { hist.push(d.v); if (hist.length > 30) hist.shift(); }
@@ -498,8 +503,8 @@ export class Dashboard {
         const diff = d.pp ? d.v - d.b : d.b !== 0 ? ((d.v - d.b) / Math.abs(d.b)) * 100 : 0;
         const up = diff > 0.05, down = diff < -0.05;
         k.dl.className = `dl ${up ? 'up' : down ? 'down' : ''}`;
-        k.dl.textContent = `${up ? '▲' : down ? '▼' : '―'} ${Math.abs(diff).toFixed(1)}${d.pp ? (d.unitless ? '점' : '%p') : '%'} 기본 설정 대비`;
-      } else k.dl.textContent = ex.note || (st.key === 'distribution' ? `수출 비중 ${(r.exportShare * 100).toFixed(0)}% · ${r.countries}개국` : '현재 설정 기준');
+        k.dl.textContent = `${up ? '▲' : down ? '▼' : '―'} ${Math.abs(diff).toFixed(1)}${d.pp ? (d.unitless ? '점' : '%p') : '%'}`;
+      } else k.dl.textContent = ex.note || (st.key === 'distribution' ? `수출 비중 ${(r.exportShare * 100).toFixed(0)}% | ${r.countries}개국` : '현재 설정 기준');
       if (reason === 'ai-done') { k.tile.classList.remove('flash'); void k.tile.offsetWidth; k.tile.classList.add('flash'); }
     }
   }

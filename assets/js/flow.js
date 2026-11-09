@@ -26,6 +26,7 @@ export class FlowDiagram {
     this.ro.observe(host);
   }
 
+  // 투입부터 설비별 처리와 산출까지 공정 흐름도를 구성한다.
   build(stage) {
     this.stage = stage;
     const svg = this.svg;
@@ -91,13 +92,13 @@ export class FlowDiagram {
     const oG = el('g', { class: 'flow-io', transform: `translate(${xs[n + 1]},${top})` });
     oG.append(el('rect', { width: OW, height: NH, rx: 10, fill: 'color-mix(in srgb, var(--accent) 10%, var(--ink-2))', stroke: 'color-mix(in srgb, var(--accent) 45%, transparent)' }));
     oG.append(el('text', { class: 'cap', x: 12, y: 18 }, stage.outLabel));
-    this.outBig = el('text', { class: 'big', x: 12, y: 42 }, '');
-    this.outMoney = el('text', { class: 'money', x: 12, y: 61 }, '');
-    this.outMid = el('text', { class: 'mid', x: 12, y: 74 }, '');
-    oG.append(this.outBig, this.outMoney, this.outMid);
+    this.outBig = el('text', { class: 'big', x: 12, y: 44 }, '');
+    this.outMoney = el('text', { class: 'money', x: 12, y: 63 }, '');
+    oG.append(this.outBig, this.outMoney);
     svg.append(oG);
   }
 
+  // 현재 생산량, 설비 부하와 선택 상태를 흐름도에 반영한다.
   update(r, selected) {
     this.last = [r, selected];
     const st = this.stage;
@@ -107,7 +108,6 @@ export class FlowDiagram {
     this.inMid.textContent = `${count(r.flowIn)} ${U}/일`;
     this.outBig.textContent = `${count(r.out)} ${st.outUnit}`;
     this.outMoney.textContent = (st.key === 'auction' ? '거래액 ' : '매출 ') + moneyStr(r.headline);
-    this.outMid.textContent = `수율 ${(r.yield * 100).toFixed(1)}%`;
     const design = r.machines[0].cap / r.machines[0].def.cap;
     r.machines.forEach((mm, i) => {
       const nd = this.nodes[mm.id];
