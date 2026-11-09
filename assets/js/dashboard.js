@@ -4,9 +4,12 @@ import { optimize, grade, defaultValues, effValue } from './sim.js';
 import { $, h, icon, money, moneyStr, count, fmtStep, clock, tween, easeInOut, toast, setImg, store, reducedMotion } from './util.js';
 import { sparkline, lineChart, utilBars, costBar } from './charts.js';
 import { FlowDiagram } from './flow.js';
+import { ANALYTICS, accentOf, themeSwitchHTML, rollNumber, moneyFixed } from './theme.js';
 import { WorldMap } from './worldmap.js';
 
-const COST_COLORS = ['#5a6b85', '#7c8aa3', '#3e4d63', '#8e9bb0', '#2c394b', '#b06a6a', '#46556d'];
+const COST_COLORS = ANALYTICS
+  ? ['#334155', '#64748b', '#1e293b', '#475569', '#94a3b8', '#b45309', '#46556d']   // B: slate steps, white labels stay legible
+  : ['#5a6b85', '#7c8aa3', '#3e4d63', '#8e9bb0', '#2c394b', '#b06a6a', '#46556d'];
 
 export class Dashboard {
   constructor(root, app) {
@@ -30,6 +33,7 @@ export class Dashboard {
         <a class="back-link" href="#journey">${icon('arrowL')}<span>여정</span></a>
         <nav class="stepper" aria-label="여정 단계">${STAGES.map((s) => `<a href="#stage-${s.no}" style="--hue:${s.hue}" data-no="${s.no}"><span class="sw"></span><span class="n">${String(s.no).padStart(2, '0')}</span><span class="t">${s.name}</span></a>`).join('')}</nav>
         <span class="sim-badge" title="화면의 수치는 시연용 시뮬레이션 추정치입니다">SIMULATION</span>
+        ${themeSwitchHTML()}
         <button class="icon-btn js-fs" aria-label="전체 화면">${icon('expand')}</button>
       </header>
       <div class="dash">
@@ -133,7 +137,7 @@ export class Dashboard {
     const changed = this.idx !== idx || !this.loaded;
     this.idx = idx; this.st = st; this.active = true; this.loaded = true;
     const E = this.el;
-    this.root.style.setProperty('--accent', st.hue);
+    this.root.style.setProperty('--accent', accentOf(st));
     this.root.querySelectorAll('.stepper a').forEach((a) => {
       if (+a.dataset.no === st.no) { a.setAttribute('aria-current', 'page'); a.scrollIntoView({ block: 'nearest', inline: 'center' }); }
       else a.removeAttribute('aria-current');
@@ -433,7 +437,7 @@ export class Dashboard {
     lineChart(E.season, {
       labels: st.months.labels,
       series: [
-        { name: '현재 설정', values: r.monthly, color: st.hue },
+        { name: '현재 설정', values: r.monthly, color: accentOf(st) },
         { name: '기본 설정', values: base.monthly, color: 'var(--fg-3)', dash: true },
       ],
       fmt: (v, axis) => { const m = money(v); return axis ? m.v.replace(/\.0$/, '') + (m.u === '억원' ? '억' : m.u === '만원' ? '만' : '') : m.v + m.u; },
@@ -449,7 +453,7 @@ export class Dashboard {
       { name: '인건비·고정비', value: c.fixed, color: COST_COLORS[3] },
       { name: '감가상각', value: c.dep, color: COST_COLORS[4] },
       ...(c.overtime > 0 ? [{ name: '초과 가동', value: c.overtime, color: COST_COLORS[5] }] : []),
-      { name: '영업이익', value: Math.max(0, r.profit), color: st.hue },
+      { name: '영업이익', value: Math.max(0, r.profit), color: accentOf(st) },
     ].filter((d) => d.value > 0 || d.name === '영업이익'), moneyStr);
     if (st.key === 'distribution') this.map.update(r);
   }
@@ -463,8 +467,8 @@ export class Dashboard {
       { id: 'profit', label: st.key === 'auction' ? '영업이익 (수수료)' : '영업이익', v: r.profit, b: base.profit, f: money },
       { id: 'yield', label: '수율', v: r.yield * 100, b: base.yield * 100, f: (v) => ({ v: v.toFixed(1), u: '%' }), pp: true },
       { id: 'out', label: st.outLabel, v: r.out, b: base.out, f: (v) => ({ v: count(v), u: st.outUnit }) },
-      { id: 'q', label: '품질 등급', v: r.Qeff * 100, b: base.Qeff * 100, f: (v) => ({ v: grade(v / 100), u: `${v.toFixed(0)}점` }), pp: true, unitless: true },
-      { id: 'ex', label: ex.label, v: parseFloat(String(ex.value).replace(/,/g, '')), b: null, f: () => ({ v: ex.value, u: ex.unit }) },
+      { id: 'q', label: '품질 등급', v: r.Qeff * 100, b: base.Qeff * 100, f: (v) => ({ v: grade(v / 100), u: `${v.toFixed(0)}점` }), pp: true, unitless: true, roll: false },
+      { id: 'ex', label: ex.label, v: parseFloat(String(ex.value).replace(/,/g, '')), b: null, f: () => ({ v: ex.value, u: ex.unit }), roll: false },
     ];
     if (!this.kpiEls || this.kpiStage !== st.key) {
       E.kpis.innerHTML = '';
@@ -486,14 +490,16 @@ export class Dashboard {
       const k = this.kpiEls[d.id];
       const fv = d.f(d.v);
       k.lbt.textContent = d.label;
-      k.b.textContent = fv.v; k.u.textContent = fv.u;
+      if (ANALYTICS && d.roll !== false && isFinite(d.v)) rollNumber(k.b, d.v, d.f === money ? moneyFixed(fv.u) : (x) => d.f(x).v);
+      else k.b.textContent = fv.v;
+      k.u.textContent = fv.u;
       k.sub.textContent = d.sub || '';
       const hist = (this.hist[d.id] ||= []);
       if (reason !== 'select' && isFinite(d.v)) {
         if (!hist.length || Math.abs(hist[hist.length - 1] - d.v) > 1e-9) { hist.push(d.v); if (hist.length > 30) hist.shift(); }
       }
       if (hist.length < 2) hist.unshift(d.b ?? d.v);
-      sparkline(k.svg, hist, { color: st.hue });
+      sparkline(k.svg, hist, { color: ANALYTICS ? 'var(--spark)' : st.hue });
       if (d.b != null && isFinite(d.b)) {
         const diff = d.pp ? d.v - d.b : d.b !== 0 ? ((d.v - d.b) / Math.abs(d.b)) * 100 : 0;
         const up = diff > 0.05, down = diff < -0.05;

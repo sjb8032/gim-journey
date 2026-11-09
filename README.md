@@ -10,6 +10,8 @@
 | 공장 대시보드 | `#stage-1` ~ `#stage-6` | 3D 디지털 트윈, 공정 흐름도(숫자가 그림 위에 실시간 표시), 기계별 파라미터, 매출·ROI·수율·품질 KPI, AI 최적화, 돌발 시나리오 |
 | 데이터 | `#data`, `#data-video` | 실험 CSV 표(스크롤·정렬·검색·열 통계), Depth 카메라 영상 세로 피드(아래로 넘기기) |
 
+디자인은 두 가지입니다. **A**는 어두운 시네마틱 화면, **B**는 밝은 비즈니스 애널리틱스 화면이고 오른쪽 위 **A·B** 버튼으로 바꿉니다(아래 3장).
+
 > 대시보드 숫자는 시연용 **시뮬레이션**입니다(화면 오른쪽 위 SIMULATION 표시). 시작 화면의 수출 통계(2025년 11.3억 달러, +13.7%)만 실제 발표 수치입니다.
 
 ---
@@ -127,6 +129,19 @@ python tools/add_data.py clear-samples
 - 3D 화면 오른쪽 아래 레이어 버튼으로 그래픽 효과(빛 번짐·그림자)를 끌 수 있습니다. 노트북이 느리면 자동으로 꺼집니다.
 - 체험 흐름 추천: 재배량을 1,000톤 이상으로 올림 → 빨간 병목 확인 → AI 최적화 → 시나리오(보일러 고장 등) → 다시 AI 최적화
 
+### 디자인 A·B 바꾸기
+
+| | A (기본) | B |
+|---|---|---|
+| 느낌 | 어두운 밤바다·공장, 빛 번짐 효과 | 밝은 작업 화면, 네이비·블루, 흰 카드 |
+| 글꼴 | Hahmlet · IBM Plex Sans KR | Inter · Pretendard · JetBrains Mono |
+| 3D | 어두운 공장 | 밝은 낮 조명, 흰 설비 |
+
+- 오른쪽 위 **A·B** 버튼이나 키보드 **T** 로 바꿉니다. 고른 디자인은 그 기기에 기억됩니다.
+- 주소로 바로 열기: `.../gim-journey/?theme=b` (B), `?theme=a` (A). 키오스크와 함께 쓰려면 `?kiosk&theme=b`
+- 처음 여는 사람에게 B를 기본으로 보여 주려면 `index.html` 맨 위 `<html lang="ko" data-theme="classic">` 의 `classic` 을 `analytics` 로 바꾸세요.
+- B 디자인은 designmd.app 의 *SaaS Enterprise Analytics* 를 참고했습니다. B 전용 스타일은 `assets/css/theme-analytics.css`, 색 전환은 `assets/js/theme.js` 에 있습니다.
+
 ---
 
 ## 4. 숫자·공정 바꾸기
@@ -150,7 +165,9 @@ python tools/add_data.py clear-samples
 ```
 index.html               화면 뼈대 (시작 · 여정 · 대시보드 · 데이터)
 assets/
-  css/style.css          디자인
+  css/style.css          디자인 (A, 공통)
+  css/theme-analytics.css  디자인 B
+  js/theme.js            디자인 A·B 전환
   js/main.js             화면 전환, 시작·여정 화면, 자동 시연
   js/config.js           단계·기계·파라미터·경제 설정  ← 숫자는 여기서
   js/sim.js              시뮬레이션 계산, AI 최적화

@@ -879,3 +879,10 @@ ol, ul { list-style: none; }
 .film-close { position: absolute; right: 0; top: -46px; background: rgba(6,9,15,.7); }
 @media (max-width: 1099px) { .home-film { display: none; } }
 @media (min-width: 1100px) { .film-btn { display: none; } .home-sub { max-width: min(34em, 46vw); } }
+
+/* phones: keep the data header on one line (it was clipping the last buttons) */
+@media (max-width: 760px) {
+  .view-data .back-link span, #dv-open span { display: none; }
+  .view-data .topbar a.btn-quiet[href="#journey"] { display: none; }
+  .view-data .topbar { gap: 8px; }
+}

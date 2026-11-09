@@ -11,9 +11,22 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { buildMachine, makeMaterials, Particles, BELT_Y, seaWater, waveHeight, boatModel, softTexture } from './machines.js';
+import { ANALYTICS, BRAND } from './theme.js';
 
 const INK = 0x06090f;
-const ST_COL = { n: new THREE.Color(0x4a5a70), w: new THREE.Color(0xffc94a), c: new THREE.Color(0xff4d61) };
+// Scene palette per design version. A: night factory with bloom. B: daylight "engineering viewer".
+const PAL = ANALYTICS ? {
+  fog: 0xe3e9f1, hemi: [0xffffff, 0xb4c1d1, 0.8], key: 2.7, rimInt: 0.45, rimCol: 0xcfe0ff,
+  plat: 0xf1f5f9, floor: 0xd3dce7, grid: ['#64748b', 0.18, 0.34], edgeMul: 1, bed: 0x6f93b6, water: 0x2f6aa6,
+  tone: THREE.NeutralToneMapping, exposure: 1.0, scanBlend: THREE.NormalBlending, beacon: 0xef4444,
+} : {
+  fog: 0x070b12, hemi: [0x9fb8ff, 0x0b0f16, 0.55], key: 2.1, rimInt: 1.6, rimCol: null,
+  plat: 0x0e141d, floor: 0x070a10, grid: [null, 0.10, 0.22], edgeMul: 1.8, bed: 0x03070c, water: 0x0a2a3c,
+  tone: THREE.ACESFilmicToneMapping, exposure: 1.05, scanBlend: THREE.AdditiveBlending, beacon: 0xff4d61,
+};
+const ST_COL = ANALYTICS
+  ? { n: new THREE.Color(0x94a3b8), w: new THREE.Color(0xf59e0b), c: new THREE.Color(0xef4444) }
+  : { n: new THREE.Color(0x4a5a70), w: new THREE.Color(0xffc94a), c: new THREE.Color(0xff4d61) };
 
 const LOOKS = {
   seed: (k) => (k <= 3 ? { s: [0.34, 0.12, 0.3], c: 0x5b4a8a } : k === 4 ? { s: [0.58, 0.3, 0.3], c: 0x7b58c2 } : { s: [0.58, 0.3, 0.3], c: 0xa6c3e8 }),
@@ -28,11 +41,11 @@ function gridTexture(hue) {
   const c = document.createElement('canvas'); c.width = c.height = 256;
   const g = c.getContext('2d');
   g.clearRect(0, 0, 256, 256);
-  const col = new THREE.Color(hue);
+  const col = new THREE.Color(PAL.grid[0] || hue);
   const rgb = `${(col.r * 255) | 0},${(col.g * 255) | 0},${(col.b * 255) | 0}`;
-  g.strokeStyle = `rgba(${rgb},0.10)`; g.lineWidth = 1;
+  g.strokeStyle = `rgba(${rgb},${PAL.grid[1]})`; g.lineWidth = 1;
   for (let i = 0; i <= 256; i += 32) { g.beginPath(); g.moveTo(i + 0.5, 0); g.lineTo(i + 0.5, 256); g.stroke(); g.beginPath(); g.moveTo(0, i + 0.5); g.lineTo(256, i + 0.5); g.stroke(); }
-  g.strokeStyle = `rgba(${rgb},0.22)`; g.lineWidth = 1.5;
+  g.strokeStyle = `rgba(${rgb},${PAL.grid[2]})`; g.lineWidth = 1.5;
   g.beginPath(); g.moveTo(0.75, 0); g.lineTo(0.75, 256); g.moveTo(0, 0.75); g.lineTo(256, 0.75); g.stroke();
   const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; t.colorSpace = THREE.SRGBColorSpace;
   return t;
@@ -43,9 +56,13 @@ function backdrop(hue) {
   const g = c.getContext('2d');
   const col = new THREE.Color(hue);
   const grd = g.createRadialGradient(256, 190, 10, 256, 256, 380);
-  grd.addColorStop(0, `rgba(${(col.r * 60) | 0},${(col.g * 60 + 10) | 0},${(col.b * 70 + 18) | 0},1)`);
-  grd.addColorStop(0.55, '#0a0f17');
-  grd.addColorStop(1, '#05080d');
+  if (ANALYTICS) {
+    grd.addColorStop(0, '#ffffff'); grd.addColorStop(0.55, '#eef2f7'); grd.addColorStop(1, '#e3e9f1');
+  } else {
+    grd.addColorStop(0, `rgba(${(col.r * 60) | 0},${(col.g * 60 + 10) | 0},${(col.b * 70 + 18) | 0},1)`);
+    grd.addColorStop(0.55, '#0a0f17');
+    grd.addColorStop(1, '#05080d');
+  }
   g.fillStyle = grd; g.fillRect(0, 0, 512, 512);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
   return t;
@@ -91,8 +108,8 @@ export class Twin {
     const r = this.renderer;
     r.domElement.className = 'gl';
     r.outputColorSpace = THREE.SRGBColorSpace;
-    r.toneMapping = THREE.ACESFilmicToneMapping;
-    r.toneMappingExposure = 1.05;
+    r.toneMapping = PAL.tone;
+    r.toneMappingExposure = PAL.exposure;
     r.shadowMap.type = THREE.PCFSoftShadowMap;
     host.prepend(r.domElement);
 
@@ -156,7 +173,7 @@ export class Twin {
     const hi = this.quality === 'high';
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, hi ? 1.75 : 1.25));
     this.renderer.shadowMap.enabled = hi;
-    this.bloom.enabled = hi;
+    this.bloom.enabled = hi && !ANALYTICS;   // B: clean daylight, no glow
     this.resize();
     this.scene.traverse((o) => { if (o.material) o.material.needsUpdate = true; });
   }
@@ -222,19 +239,21 @@ export class Twin {
     this.clear();
     this.stage = stage;
     this.userMoved = false;
-    const hue = new THREE.Color(stage.hue);
-    const M = (this.M = makeMaterials(stage.hue));
+    this.uiHue = ANALYTICS ? BRAND : stage.hue;   // selection, edges, scan
+    const hue = new THREE.Color(this.uiHue);
+    const M = (this.M = makeMaterials(this.uiHue, ANALYTICS));
     const sc = this.scene;
     sc.background = backdrop(stage.hue);
     sc.environment = this.envTex;
-    sc.fog = new THREE.FogExp2(0x070b12, stage.layout === 'sea' ? 0.016 : 0.022);
+    sc.fog = new THREE.FogExp2(PAL.fog, stage.layout === 'sea' ? 0.016 : 0.022);
 
-    const hemi = new THREE.HemisphereLight(0x9fb8ff, 0x0b0f16, 0.55);
-    const key = new THREE.DirectionalLight(0xfff4e6, 2.1);
+    const hemi = new THREE.HemisphereLight(PAL.hemi[0], PAL.hemi[1], PAL.hemi[2]);
+    const key = new THREE.DirectionalLight(0xfff4e6, PAL.key);
     key.position.set(9, 16, 10); key.castShadow = true;
     key.shadow.mapSize.set(2048, 2048); key.shadow.bias = -0.0004; key.shadow.normalBias = 0.02;
-    const rim = new THREE.DirectionalLight(hue, 1.6); rim.position.set(-10, 6, -12);
-    this.rim = rim; this.rimBase = hue.clone();
+    const rimC = PAL.rimCol != null ? new THREE.Color(PAL.rimCol) : hue;
+    const rim = new THREE.DirectionalLight(rimC, PAL.rimInt); rim.position.set(-10, 6, -12);
+    this.rim = rim; this.rimBase = rimC.clone();
     sc.add(hemi, key, rim, key.target);
     this.key = key;
 
@@ -242,7 +261,7 @@ export class Twin {
     else this.buildLine(stage, M);
 
     // AI scan plane
-    const scanMat = new THREE.MeshBasicMaterial({ color: hue.clone().multiplyScalar(1.6), transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
+    const scanMat = new THREE.MeshBasicMaterial({ color: ANALYTICS ? hue.clone() : hue.clone().multiplyScalar(1.6), transparent: true, opacity: 0, blending: PAL.scanBlend, depthWrite: false, side: THREE.DoubleSide });
     this.scanPlane = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), scanMat);
     this.scanPlane.userData.ownGeo = true;
     this.scanPlane.rotation.y = Math.PI / 2;
@@ -316,7 +335,7 @@ export class Twin {
     const back = bbox.min.z - 1.5, front = port ? 1.7 : bbox.max.z + 1.5;
     const PD = front - back;
     const pz = (front + back) / 2;
-    const plat = new THREE.Mesh(new THREE.BoxGeometry(PW, 0.36, PD), new THREE.MeshStandardMaterial({ color: 0x0e141d, roughness: 0.92, metalness: 0.1 }));
+    const plat = new THREE.Mesh(new THREE.BoxGeometry(PW, 0.36, PD), new THREE.MeshStandardMaterial({ color: PAL.plat, roughness: 0.92, metalness: 0.1 }));
     plat.userData.ownGeo = true;
     plat.position.set(center.x, -0.18, pz); plat.receiveShadow = true;
     sc.add(plat);
@@ -324,14 +343,14 @@ export class Twin {
     const top = new THREE.Mesh(new THREE.PlaneGeometry(PW, PD), new THREE.MeshBasicMaterial({ map: grid, transparent: true, depthWrite: false }));
     top.userData.ownGeo = true; top.rotation.x = -Math.PI / 2; top.position.set(center.x, 0.003, pz);
     sc.add(top);
-    const edge = new THREE.Mesh(outlineGeo(PW, PD, 0.05, 0.25), new THREE.MeshBasicMaterial({ color: new THREE.Color(stage.hue).multiplyScalar(1.8) }));
+    const edge = new THREE.Mesh(outlineGeo(PW, PD, 0.05, 0.25), new THREE.MeshBasicMaterial({ color: new THREE.Color(this.uiHue).multiplyScalar(PAL.edgeMul) }));
     edge.userData.ownGeo = true; edge.position.set(center.x, 0.006, pz);
     sc.add(edge);
-    const floor = new THREE.Mesh(new THREE.PlaneGeometry(240, 240), new THREE.MeshStandardMaterial({ color: 0x070a10, roughness: 1, metalness: 0 }));
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(240, 240), new THREE.MeshStandardMaterial({ color: PAL.floor, roughness: 1, metalness: 0 }));
     floor.userData.ownGeo = true; floor.rotation.x = -Math.PI / 2; floor.position.y = -0.37; floor.receiveShadow = true;
     sc.add(floor);
     if (port) {
-      const water = seaWater(stage.hue);
+      const water = seaWater(stage.hue, PAL.water);
       water.geometry.dispose();
       water.geometry = new THREE.PlaneGeometry(PW + 30, 14, 120, 40); water.geometry.rotateX(-Math.PI / 2);
       water.userData.ownGeo = true;
@@ -379,7 +398,7 @@ export class Twin {
       og.userData.ownGeo = true; og.userData.pickable = false;
       og.position.y = 0.012;
       m.r.group.add(og);
-      const beacon = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1, 8), new THREE.MeshBasicMaterial({ color: new THREE.Color(0xff4d61).multiplyScalar(2.2), transparent: true, opacity: 0.85 }));
+      const beacon = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1, 8), new THREE.MeshBasicMaterial({ color: new THREE.Color(PAL.beacon).multiplyScalar(ANALYTICS ? 1 : 2.2), transparent: true, opacity: 0.85 }));
       beacon.userData.ownGeo = true; beacon.userData.pickable = false; beacon.visible = false;
       m.r.group.add(beacon);
       this.registerMachine(m.def, m.r, m.r.group, m.r.h + 0.35);
@@ -408,10 +427,10 @@ export class Twin {
 
   buildSea(stage, M) {
     const sc = this.scene;
-    const water = seaWater(stage.hue);
+    const water = seaWater(stage.hue, PAL.water);
     water.userData.ownGeo = true;
     sc.add(water);
-    const bed = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), new THREE.MeshBasicMaterial({ color: 0x03070c }));
+    const bed = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), new THREE.MeshBasicMaterial({ color: PAL.bed }));
     bed.userData.ownGeo = true; bed.rotation.x = -Math.PI / 2; bed.position.y = -3; sc.add(bed);
     this.key.shadow.camera.left = -20; this.key.shadow.camera.right = 20; this.key.shadow.camera.top = 16; this.key.shadow.camera.bottom = -16;
     this.key.shadow.camera.updateProjectionMatrix();
@@ -451,7 +470,7 @@ export class Twin {
     const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.4, 8), M.steelDark); mast.position.y = 1.4; sensor.add(mast);
     const top = new THREE.Mesh(new THREE.SphereGeometry(0.1, 12, 8), M.accent); top.position.y = 2.15; sensor.add(top);
     [sensor.children].flat().forEach((o) => { o.userData.ownGeo = true; });
-    const ringMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(stage.hue).multiplyScalar(1.5), transparent: true, opacity: 0.6, side: THREE.DoubleSide, depthWrite: false });
+    const ringMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(this.uiHue).multiplyScalar(ANALYTICS ? 1 : 1.5), transparent: true, opacity: 0.6, side: THREE.DoubleSide, depthWrite: false });
     const ring = new THREE.Mesh(new THREE.RingGeometry(0.9, 1.0, 48), ringMat); ring.rotation.x = -Math.PI / 2; ring.userData.ownGeo = true; ring.userData.pickable = false;
     sc.add(ring);
     this.registerMachine(stage.machines.find((m) => m.id === 'sensor'), { tick: null }, sensor, 2.6);
@@ -615,7 +634,7 @@ export class Twin {
       it.label.querySelector('.x').textContent = `${p0.label} ${vals[p0.id]}${p0.unit.startsWith('%') || p0.unit.length <= 2 ? p0.unit : ' ' + p0.unit}`;
       it.status = cls;
       if (it.outline) {
-        const col = it.id === this.selected ? new THREE.Color(this.stage.hue).multiplyScalar(1.6) : cls === 'crit' ? ST_COL.c : cls === 'warn' ? ST_COL.w : ST_COL.n;
+        const col = it.id === this.selected ? new THREE.Color(this.uiHue).multiplyScalar(ANALYTICS ? 1 : 1.6) : cls === 'crit' ? ST_COL.c : cls === 'warn' ? ST_COL.w : ST_COL.n;
         it.outline.material.color.copy(col);
       }
       if (it.beacon) {
@@ -633,7 +652,7 @@ export class Twin {
       it.label.classList.toggle('sel', mid === id);
       if (it.outline) {
         const cls = it.status;
-        it.outline.material.color.copy(mid === id ? new THREE.Color(this.stage.hue).multiplyScalar(1.6) : cls === 'crit' ? ST_COL.c : cls === 'warn' ? ST_COL.w : ST_COL.n);
+        it.outline.material.color.copy(mid === id ? new THREE.Color(this.uiHue).multiplyScalar(ANALYTICS ? 1 : 1.6) : cls === 'crit' ? ST_COL.c : cls === 'warn' ? ST_COL.w : ST_COL.n);
       }
     }
   }
@@ -733,7 +752,7 @@ export class Twin {
     if (this.rim) {
       const target = this.alarmOn ? new THREE.Color(0xff3045) : this.rimBase;
       this.rim.color.lerp(target, Math.min(1, dt * 3));
-      this.rim.intensity = this.alarmOn ? 2.2 + Math.sin(t * 5) * 0.9 : 1.6;
+      this.rim.intensity = this.alarmOn ? 2.2 + Math.sin(t * 5) * 0.9 : PAL.rimInt;
     }
     if (this.quality === 'high') this.composer.render(dt);
     else this.renderer.render(this.scene, this.camera);

@@ -1,4 +1,5 @@
 // App shell: asset manifest, router, landing, journey, kiosk tour.
+import { THEME, ANALYTICS, setTheme, toggleTheme, rollNumber, moneyFixed } from './theme.js';
 import { STAGES, HARVEST_RANGE, INTRO_VIDEO } from './config.js';
 import { createState, run, runBaseline } from './sim.js';
 import { $, $$, h, icon, money, moneyStr, count, setImg, toast, store, reducedMotion, isCoarse } from './util.js';
@@ -46,7 +47,7 @@ function activate(name, arg) {
   for (const [k, el] of Object.entries(views)) el.classList.toggle('is-active', k === name);
   if (name !== 'stage') dash?.hide();
   if (name !== 'data') dataView?.hide?.();
-  if (name === 'home') { homeBg.start(); film.play(); } else { homeBg.stop(); film.pause(); }
+  if (name === 'home') { homeBg.start(); film.play(); filmKpis(); } else { homeBg.stop(); film.pause(); }
   if (name === 'stage') { dash ||= new Dashboard(views.stage, app); dash.show(arg); }
   if (name === 'data') {
     import('./data.js').then(({ DataView }) => { dataView ||= new DataView(views.data); dataView.show(arg); })
@@ -137,7 +138,7 @@ const homeBg = (() => {
     if (reducedMotion()) { cancelAnimationFrame(raf); }
   };
   return {
-    start() { if (on || document.hidden) return; on = true; raf = requestAnimationFrame(draw); },
+    start() { if (on || document.hidden || ANALYTICS) return; on = true; raf = requestAnimationFrame(draw); },
     stop() { on = false; cancelAnimationFrame(raf); },
   };
 })();
@@ -145,9 +146,9 @@ const homeBg = (() => {
 function initHome() {
   const A = window.__ASSETS;
   const img = $('#home-img');
-  setImg(img, A.hero);
+  if (!ANALYTICS) setImg(img, A.hero);   // B has no photo backdrop
   const video = $('#home-video');
-  if (A.heroVideo && !reducedMotion() && !(navigator.connection && navigator.connection.saveData)) {
+  if (!ANALYTICS && A.heroVideo && !reducedMotion() && !(navigator.connection && navigator.connection.saveData)) {
     const srcs = [A.preferLocal && A.heroVideo.local, A.heroVideo.remote, !A.preferLocal && A.heroVideo.local].filter(Boolean);
     let i = 0;
     const next = () => { if (i < srcs.length) { video.src = srcs[i++]; video.play().catch(() => {}); } };
@@ -190,6 +191,8 @@ const film = (() => {
     if (!V?.youtube) return;
     $('#film-title').textContent = V.title;
     $('#film-src').textContent = V.source ? `· ${V.source}` : '';
+    $('#film-bar-title').textContent = V.title;
+    $('#film-bar-src').textContent = V.source || '';
     $('#film-open').hidden = false;
     const mount = () => {
       if (!wide() || card) return;
@@ -214,6 +217,27 @@ const film = (() => {
   }
   return { init, play: () => send('playVideo'), pause: () => { send('pauseVideo'); } };
 })();
+
+// B only: two live metric cards floating on the video window (same numbers as the journey page)
+function filmKpis() {
+  if (!ANALYTICS || !app.results) return;
+  const rs = app.results, last = rs[5], raw = rs[2];
+  const total = rs.reduce((s, r) => s + r.profit, 0);
+  const put = (id, won) => {
+    const u = money(won).u;
+    $(`#${id}-u`).textContent = u;
+    rollNumber($(`#${id}`), won, moneyFixed(u), { dur: 1100, from: 0 });   // count up on every visit
+  };
+  put('fk-final', last.revenue);
+  put('fk-profit', total);
+  $('#fk-mult').textContent = `물김 거래액의 ${(last.revenue / Math.max(1, raw.gross)).toFixed(1)}배`;
+  $('#fk-note').textContent = `재배량 ${app.state.R.toLocaleString('ko-KR')}톤 · 단계별 매출`;
+  const max = Math.max(...rs.map((r) => r.headline)) || 1, bw = 14, gap = (132 - bw * 6) / 5;
+  $('#fk-bars').innerHTML = rs.map((r, i) => {
+    const hgt = Math.max(3, (r.headline / max) * 36);
+    return `<rect x="${(i * (bw + gap)).toFixed(1)}" y="${(40 - hgt).toFixed(1)}" width="${bw}" height="${hgt.toFixed(1)}" rx="3" fill="${r.st.hue}"><title>${r.st.name} ${moneyStr(r.headline)}</title></rect>`;
+  }).join('');
+}
 
 // ---------------------------------------------------------------- journey
 let journeyBuilt = false;
@@ -328,10 +352,13 @@ async function toggleFullscreen() {
 document.addEventListener('click', (e) => {
   if (e.target.closest('.js-fs')) toggleFullscreen();
   if (e.target.closest('.js-tour')) { tour.on ? tour.stop() : tour.start(); }
+  const th = e.target.closest('[data-set-theme]');
+  if (th) setTheme(th.dataset.setTheme);
 });
 document.addEventListener('keydown', (e) => {
   if (e.target.closest?.('input, select, textarea')) return;
   if (e.key === 'f' || e.key === 'F') toggleFullscreen();
+  if ((e.key === 't' || e.key === 'T') && !e.ctrlKey && !e.metaKey && !e.altKey) toggleTheme();
 });
 document.addEventListener('visibilitychange', () => { if (document.hidden) homeBg.stop(); else if (current?.name === 'home') homeBg.start(); });
 
@@ -344,5 +371,7 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) homeB
   window.addEventListener('hashchange', route);
   route();
   bumpIdle();
+  // A·B buttons: mark the current version (the stage/data headers build theirs already marked)
+  $$('[data-set-theme]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.setTheme === THEME)));
   document.documentElement.classList.add('booted');
 })();

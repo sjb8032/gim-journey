@@ -1,5 +1,6 @@
 // Data viewer: scrollable CSV table (virtualised) + vertical swipe feed for depth-camera video.
 import { $, h, icon, toast, fmt1 } from './util.js';
+import { themeSwitchHTML } from './theme.js';
 
 const ROW_H = 32, HEAD_H = 40;
 
@@ -76,6 +77,7 @@ export class DataView {
         <button class="btn btn-quiet" id="dv-open" type="button">${icon('file')}<span>파일 열기</span></button>
         <input type="file" id="dv-file" accept=".csv,.tsv,.txt,video/*" multiple hidden>
         <a class="btn btn-quiet" href="#journey">체험하기</a>
+        ${themeSwitchHTML()}
         <button class="icon-btn js-fs" aria-label="전체 화면">${icon('expand')}</button>
       </header>
       <div class="data-body">
@@ -492,10 +494,10 @@ function seriesChart(host, values) {
     <g class="grid"><line x1="${L}" x2="${W - R}" y1="${Y(hi)}" y2="${Y(hi)}"/><line x1="${L}" x2="${W - R}" y1="${Y(lo)}" y2="${Y(lo)}"/></g>
     <text class="axis" x="${L - 5}" y="${Y(hi) + 3}" text-anchor="end">${fnum(hi)}</text><text class="axis" x="${L - 5}" y="${Y(lo) + 3}" text-anchor="end">${fnum(lo)}</text>
     <text class="axis" x="${L}" y="${H - 3}">1</text><text class="axis" x="${W - R}" y="${H - 3}" text-anchor="end">${values.length.toLocaleString('ko-KR')}행</text>
-    <path d="${d} L${X(values.length - 1)},${Y(lo)} L${X(0)},${Y(lo)}Z" fill="var(--live)" fill-opacity=".10"/>
-    <path d="${d}" fill="none" stroke="var(--live)" stroke-width="1.6" stroke-linejoin="round"/>
+    <path d="${d} L${X(values.length - 1)},${Y(lo)} L${X(0)},${Y(lo)}Z" fill="var(--series, var(--live))" fill-opacity=".10"/>
+    <path d="${d}" fill="none" stroke="var(--series, var(--live))" stroke-width="1.6" stroke-linejoin="round"/>
     <line class="xh" x1="0" x2="0" y1="${T}" y2="${H - B}" stroke="var(--fg-3)" visibility="hidden"/>
-    <circle class="xd" r="3.5" fill="var(--live)" stroke="var(--ink-1)" stroke-width="2" visibility="hidden"/>
+    <circle class="xd" r="3.5" fill="var(--series, var(--live))" stroke="var(--ink-1)" stroke-width="2" visibility="hidden"/>
     <rect x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" fill="transparent"/></svg><div class="chart-tip"></div>`;
   const svg = host.querySelector('svg'), tip = host.querySelector('.chart-tip'), xh = svg.querySelector('.xh'), xd = svg.querySelector('.xd');
   svg.addEventListener('pointermove', (e) => {
@@ -521,7 +523,7 @@ function histChart(host, values, s) {
   let out = '';
   bins.forEach((c, i) => {
     const hh = (c / mx) * (H - T - B);
-    if (c) out += `<rect x="${(L + i * bw + 1).toFixed(1)}" y="${(H - B - hh).toFixed(1)}" width="${Math.max(1, bw - 2).toFixed(1)}" height="${hh.toFixed(1)}" rx="2" fill="var(--live)" fill-opacity=".75"><title>${fnum(lo + (i / nb) * (hi - lo))}–${fnum(lo + ((i + 1) / nb) * (hi - lo))}: ${c}개</title></rect>`;
+    if (c) out += `<rect x="${(L + i * bw + 1).toFixed(1)}" y="${(H - B - hh).toFixed(1)}" width="${Math.max(1, bw - 2).toFixed(1)}" height="${hh.toFixed(1)}" rx="2" fill="var(--series, var(--live))" fill-opacity=".75"><title>${fnum(lo + (i / nb) * (hi - lo))}–${fnum(lo + ((i + 1) / nb) * (hi - lo))}: ${c}개</title></rect>`;
   });
   host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" height="${H}"><g class="grid"><line x1="${L}" x2="${W - R}" y1="${H - B}" y2="${H - B}"/></g>${out}
     <text class="axis" x="${L}" y="${H - 3}">${fnum(lo)}</text><text class="axis" x="${W - R}" y="${H - 3}" text-anchor="end">${fnum(hi)}</text></svg>`;

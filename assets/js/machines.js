@@ -18,28 +18,30 @@ export function softTexture() {
   return SOFT;
 }
 
-export function makeMaterials(hue) {
+export function makeMaterials(hue, light = false) {
   const H = new THREE.Color(hue);
   const std = (o) => new THREE.MeshStandardMaterial({ envMapIntensity: 0.9, ...o });
+  // light = design B: white/grey equipment with blue trim instead of dark navy paint
+  const L = light ? { paint: 0xdde3ea, paintLight: 0xf5f7fa, panel: 0xc3cdd9, blue: 0x2563eb, navy: 0x1e3a8a, white: 0xf8fafc, steelDark: 0x66727f, glow: 0.9 } : {};
   return {
     hue: H,
     steel: std({ color: 0xc3ccd6, metalness: 0.85, roughness: 0.3 }),
-    steelDark: std({ color: 0x59646f, metalness: 0.75, roughness: 0.42 }),
-    paint: std({ color: 0x27313f, metalness: 0.35, roughness: 0.55 }),
-    paintLight: std({ color: 0xa9b3be, metalness: 0.2, roughness: 0.5 }),
-    panel: std({ color: 0x3a4657, metalness: 0.4, roughness: 0.5 }),
+    steelDark: std({ color: L.steelDark ?? 0x59646f, metalness: 0.75, roughness: 0.42 }),
+    paint: std({ color: L.paint ?? 0x27313f, metalness: light ? 0.15 : 0.35, roughness: 0.55 }),
+    paintLight: std({ color: L.paintLight ?? 0xa9b3be, metalness: 0.2, roughness: 0.5 }),
+    panel: std({ color: L.panel ?? 0x3a4657, metalness: light ? 0.2 : 0.4, roughness: 0.5 }),
     rubber: std({ color: 0x15181c, metalness: 0.1, roughness: 0.85 }),
     belt: std({ color: 0x1b2027, metalness: 0.2, roughness: 0.75 }),
-    blue: std({ color: 0x2f6fb3, metalness: 0.2, roughness: 0.45 }),
-    navy: std({ color: 0x1d2c4a, metalness: 0.3, roughness: 0.5 }),
-    white: std({ color: 0xb9c2cc, metalness: 0.15, roughness: 0.5 }),
+    blue: std({ color: L.blue ?? 0x2f6fb3, metalness: 0.2, roughness: 0.45 }),
+    navy: std({ color: L.navy ?? 0x1d2c4a, metalness: 0.3, roughness: 0.5 }),
+    white: std({ color: L.white ?? 0xb9c2cc, metalness: 0.15, roughness: 0.5 }),
     wood: std({ color: 0x8a6a46, metalness: 0.0, roughness: 0.8 }),
     cardboard: std({ color: 0xc19a62, metalness: 0.0, roughness: 0.85 }),
     yellow: std({ color: 0xe0b23a, metalness: 0.3, roughness: 0.5 }),
     glass: new THREE.MeshPhysicalMaterial({ color: 0xa8d8ff, metalness: 0, roughness: 0.06, transparent: true, opacity: 0.2, depthWrite: false, side: THREE.DoubleSide, envMapIntensity: 1.2 }),
     water: std({ color: 0x1b5e86, metalness: 0.1, roughness: 0.15, transparent: true, opacity: 0.85, emissive: 0x0b3550, emissiveIntensity: 0.6 }),
-    accent: std({ color: H, emissive: H, emissiveIntensity: 2.6, metalness: 0, roughness: 0.4 }),
-    accentSoft: std({ color: H, emissive: H, emissiveIntensity: 0.9, metalness: 0, roughness: 0.4 }),
+    accent: std({ color: H, emissive: H, emissiveIntensity: light ? L.glow : 2.6, metalness: 0, roughness: 0.4 }),
+    accentSoft: std({ color: H, emissive: H, emissiveIntensity: light ? 0.3 : 0.9, metalness: 0, roughness: 0.4 }),
     heat: std({ color: 0xff7a2a, emissive: 0xff5a10, emissiveIntensity: 3, metalness: 0, roughness: 0.6 }),
     lamp: std({ color: 0xfff2d6, emissive: 0xfff0c8, emissiveIntensity: 2.4 }),
     red: std({ color: 0xff3b4f, emissive: 0xff2040, emissiveIntensity: 2.4 }),
@@ -869,10 +871,10 @@ export function buildMachine(type, M) {
 // ======================================================================
 // Sea scene pieces (stage 2)
 // ======================================================================
-export function seaWater(hue) {
+export function seaWater(hue, color = 0x0a2a3c) {
   const g = new THREE.PlaneGeometry(80, 60, 160, 120);
   g.rotateX(-Math.PI / 2);
-  const mat = new THREE.MeshStandardMaterial({ color: 0x0a2a3c, roughness: 0.18, metalness: 0.15, envMapIntensity: 0.9, emissive: new THREE.Color(hue).multiplyScalar(0.02) });
+  const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.18, metalness: 0.15, envMapIntensity: 0.9, emissive: new THREE.Color(hue).multiplyScalar(0.02) });
   const uniforms = { uTime: { value: 0 } };
   mat.onBeforeCompile = (sh) => {
     sh.uniforms.uTime = uniforms.uTime;
