@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.part.mp4
+*.raw.mp4
+.DS_Store
+Thumbs.db
+desktop.ini

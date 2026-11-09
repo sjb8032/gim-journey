@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>김의 여정</title>
+  <meta name="claude:viewport-fit-sides" content="cover">
+  <meta name="description" content="종자에서 수출까지, 김 밸류체인 6단계를 디지털 트윈으로 직접 돌려 보는 시연 페이지">
+  <meta name="theme-color" content="#06090f">
+  <meta property="og:title" content="김의 여정 · Gim Journey">
+  <meta property="og:description" content="종자 → 양식 → 경매 → 1차 가공 → 2차 가공 → 유통, 여섯 공장을 직접 돌려 보세요.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23b28dff'/%3E%3Cstop offset='.5' stop-color='%233fc8e4'/%3E%3Cstop offset='1' stop-color='%238fd46b'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='3' y='3' width='26' height='26' rx='5' fill='%230c0f12'/%3E%3Crect x='3' y='3' width='26' height='26' rx='5' fill='url(%23g)' opacity='.5'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@500;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script type="importmap">
+    { "imports": { "three": "./assets/vendor/three/three.module.min.js", "three/addons/": "./assets/vendor/three/addons/" } }
+  </script>
+  <script src="assets/vendor/qrcode.js" defer></script>
+  <script type="module" src="assets/js/main.js"></script>
+</head>
+<body>
+
+  <!-- ============ LANDING ============ -->
+  <section class="view view-home" id="view-home" aria-label="시작 화면">
+    <div class="home-bg" aria-hidden="true">
+      <canvas id="home-canvas"></canvas>
+      <img id="home-img" alt="">
+      <video id="home-video" muted playsinline loop autoplay preload="auto"></video>
+      <div class="home-shade"></div>
+    </div>
+    <header class="topbar">
+      <a class="brand" href="#home"><span class="brand-mark"></span>GIM JOURNEY</a>
+      <span class="spacer"></span>
+      <nav class="topnav" aria-label="바로가기"><a href="#journey">체험</a><a href="#data">데이터</a></nav>
+      <button class="icon-btn js-fs" aria-label="전체 화면" title="전체 화면 (F)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+    </header>
+    <div class="home-main">
+      <p class="eyebrow">DIGITAL TWIN · 김 밸류체인 6단계</p>
+      <h1 class="home-title">김의 여정<span class="en">THE JOURNEY OF GIM</span></h1>
+      <p class="home-sub">굴 껍데기 속 포자 한 톨이 부산항 컨테이너에 오르기까지. 여섯 개의 공장을 직접 돌려 보세요.</p>
+      <div class="home-cta">
+        <a class="btn btn-pearl btn-lg" href="#journey">체험 시작 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <a class="btn btn-ghost btn-lg" href="#data">데이터 보기</a>
+      </div>
+    </div>
+    <ol class="home-steps" id="home-steps" aria-label="여정 단계 바로가기"></ol>
+    <div class="home-side">
+      <aside class="home-fact">2025년 한국 김 수출<b>11.3억 달러</b>전년보다 13.7% 늘어 역대 최대<small>해양수산부 발표 (2026. 1.)</small></aside>
+      <aside class="home-qr" id="home-qr" hidden><div class="qr"></div><span>내 폰으로 체험</span></aside>
+    </div>
+  </section>
+
+  <!-- ============ JOURNEY ============ -->
+  <section class="view view-journey scroll" id="view-journey" aria-label="김의 여정 여섯 단계">
+    <header class="topbar solid">
+      <a class="back-link" href="#home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg><span>처음으로</span></a>
+      <span class="spacer"></span>
+      <nav class="topnav" aria-label="바로가기"><a href="#data">데이터 보기</a></nav>
+      <button class="btn btn-quiet js-tour" aria-pressed="false" type="button">자동 시연</button>
+      <button class="icon-btn js-fs" aria-label="전체 화면" title="전체 화면 (F)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+    </header>
+    <div class="journey-wrap">
+      <div class="journey-head">
+        <div>
+          <p class="eyebrow">THE JOURNEY · 6 STAGES</p>
+          <h2 class="display-l">종자에서 수출까지</h2>
+          <p class="muted">재배량을 바꾸면 여섯 단계의 생산량과 매출이 사슬처럼 함께 움직입니다. 카드를 눌러 각 공장의 운영 대시보드를 열어 보세요.</p>
+        </div>
+        <div class="harvest-ctl">
+          <div class="row"><label for="j-R-range">재배량 (물김 기준)</label><span class="step-btns"><button id="j-minus" type="button" aria-label="50톤 줄이기">−</button><button id="j-plus" type="button" aria-label="50톤 늘리기">+</button></span></div>
+          <div class="big-num"><output id="j-R" for="j-R-range">600</output><span>톤</span></div>
+          <input type="range" class="range" id="j-R-range">
+          <div class="scale"><span>50톤</span><span>설비 설계 720톤</span><span>1,500톤</span></div>
+        </div>
+        <dl class="journey-sum">
+          <div><dt>최종 매출 (유통)</dt><dd id="j-final">-</dd></div>
+          <div><dt>물김 거래액 대비</dt><dd id="j-mult">-</dd></div>
+          <div><dt>체인 전체 영업이익</dt><dd id="j-profit">-</dd></div>
+        </dl>
+      </div>
+      <div class="track-wrap"><ol class="track" id="track" aria-label="여섯 단계"></ol></div>
+      <div class="journey-bottom">
+        <figure class="panel"><div class="panel-h"><h3>단계별 매출 · 가치 사슬</h3><span class="eyebrow">막대를 누르면 공장으로</span></div><div id="j-chain" class="chart"></div></figure>
+        <div class="panel journey-actions">
+          <h3>시연 팁</h3>
+          <p>재배량을 720톤 넘게 올려 보세요. 설계 용량을 넘긴 설비가 빨간 병목으로 바뀝니다.</p>
+          <p>각 공장에서 <b>AI 최적화</b>를 누르면 파라미터가 자동으로 맞춰지고 ROI가 올라갑니다.</p>
+          <button class="btn btn-pearl js-tour" aria-pressed="false" type="button">자동 시연 시작</button>
+          <button class="btn btn-quiet" id="j-reset" type="button">전체 초기화</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STAGE DASHBOARD (built by dashboard.js) ============ -->
+  <section class="view view-stage" id="view-stage" aria-label="공장 운영 대시보드"></section>
+
+  <!-- ============ DATA VIEWER (built by data.js) ============ -->
+  <section class="view view-data" id="view-data" aria-label="실험 데이터 보기"><div class="data-body"></div></section>
+
+  <noscript><p style="padding:24px;color:#e9eef5">이 시연 페이지는 JavaScript가 필요합니다.</p></noscript>
+</body>
+</html>

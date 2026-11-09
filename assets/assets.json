@@ -1,0 +1,59 @@
+{
+  "preferLocal": false,
+  "note": "remote = Higgsfield CDN 원본. tools/fetch_assets.py 를 한 번 실행하면 local 경로로 내려받고 preferLocal 이 true 로 바뀝니다.",
+  "hero": {
+    "local": "assets/img/hero.webp",
+    "remote": "https://d8j0ntlcm91z4.cloudfront.net/user_3IwRlPAP9EhpgLowGDUpmTSyMLx/hf_20261109_094458_10eab02f-2dc6-40d9-90e4-9cc63f757816.png",
+    "max": 2400
+  },
+  "heroVideo": {
+    "local": "assets/media/hero.mp4",
+    "remote": "https://d8j0ntlcm91z4.cloudfront.net/user_3IwRlPAP9EhpgLowGDUpmTSyMLx/hf_20261109_094920_44dbae98-d53d-4d92-8a42-f124506cc19e.mp4"
+  },
+  "stages": {
+    "seed": {
+      "local": "assets/img/stage-1-seed.webp",
+      "remote": "https://d8j0ntlcm91z4.cloudfront.net/user_3IwRlPAP9EhpgLowGDUpmTSyMLx/hf_20261109_094458_32bdba87-44d5-46ce-adbf-79ff1c2dad92_min.webp",
+      "source": "https://d8j0ntlcm91z4.cloudfront.net/user_3IwRlPAP9EhpgLowGDUpmTSyMLx/hf_20261109_094458_32bdba87-44d5-46ce-adbf-79ff1c2dad92.png",
+      "max": 1400
+    },
+    "farm": {
+      "local": "assets/img/stage-2-farm.webp",
+      "remote": "https://d8j0ntlcm91z4.cloudfront.net/user_3IwRlPAP9EhpgLowGDUpmTSyMLx/hf_20261109_094458_d05b73d8-6f99-4334-8aca-04318c348da8_min.webp",
+      "source": "https://d8j0ntlcm91z4.cloudfront.net/user_3IwRlPAP9EhpgLowGDUpmTSyMLx/hf_20261109_094458_d05b73d8-6f99-4334-8aca-04318c348da8.png",
+      "max": 1400
+    },
+    "auction": {
+      "local": "assets/img/stage-3-auction.webp",
+      "remote": "https://d8j0ntlcm91z4.cloudfront.net/user_3IwRlPAP9EhpgLowGDUpmTSyMLx/hf_20261109_094458_d63adc92-db01-4326-8d1f-20beabd3cf1b_min.webp",
+      "source": "https://d8j0ntlcm91z4.cloudfront.net/user_3IwRlPAP9EhpgLowGDUpmTSyMLx/hf_20261109_094458_d63adc92-db01-4326-8d1f-20beabd3cf1b.png",
+      "max": 1400
+    },
+    "primary": {
+      "local": "assets/img/stage-4-primary.webp",
+      "remote": "https://d8j0ntlcm91z4.cloudfront.net/user_3IwRlPAP9EhpgLowGDUpmTSyMLx/hf_20261109_094459_25b3d387-68b4-41cd-817a-74b4103b9546_min.webp",
+      "source": "https://d8j0ntlcm91z4.cloudfront.net/user_3IwRlPAP9EhpgLowGDUpmTSyMLx/hf_20261109_094459_25b3d387-68b4-41cd-817a-74b4103b9546.png",
+      "max": 1400
+    },
+    "secondary": {
+      "local": "assets/img/stage-5-secondary.webp",
+      "remote": "https://d8j0ntlcm91z4.cloudfront.net/user_3IwRlPAP9EhpgLowGDUpmTSyMLx/hf_20261109_094459_671b5ef7-9406-4b3a-abd3-3bc8338c388b_min.webp",
+      "source": "https://d8j0ntlcm91z4.cloudfront.net/user_3IwRlPAP9EhpgLowGDUpmTSyMLx/hf_20261109_094459_671b5ef7-9406-4b3a-abd3-3bc8338c388b.png",
+      "max": 1400
+    },
+    "distribution": {
+      "local": "assets/img/stage-6-distribution.webp",
+      "remote": "https://d8j0ntlcm91z4.cloudfront.net/user_3IwRlPAP9EhpgLowGDUpmTSyMLx/hf_20261109_094457_37491605-465f-4eac-8d1b-203109339e9a_min.webp",
+      "source": "https://d8j0ntlcm91z4.cloudfront.net/user_3IwRlPAP9EhpgLowGDUpmTSyMLx/hf_20261109_094457_37491605-465f-4eac-8d1b-203109339e9a.png",
+      "max": 1400
+    }
+  },
+  "models": {
+    "seed": { "local": "assets/models/seed-wheel.glb", "remote": "https://d8j0ntlcm91z4.cloudfront.net/user_3IwRlPAP9EhpgLowGDUpmTSyMLx/hf_20261109_094907_13023835-e0b3-469b-b56c-b6e21d077850.glb" },
+    "farm": { "local": "assets/models/farm-boat.glb", "remote": "https://d8j0ntlcm91z4.cloudfront.net/user_3IwRlPAP9EhpgLowGDUpmTSyMLx/hf_20261109_094911_d46327f3-841d-4e34-8469-45645bef5b9d.glb" },
+    "auction": { "local": "assets/models/auction-scale.glb", "remote": "https://d8j0ntlcm91z4.cloudfront.net/user_3IwRlPAP9EhpgLowGDUpmTSyMLx/hf_20261109_094913_95d26557-641f-4204-a43e-12d98b7a180b.glb" },
+    "primary": { "local": "assets/models/primary-former.glb", "remote": "https://d8j0ntlcm91z4.cloudfront.net/user_3IwRlPAP9EhpgLowGDUpmTSyMLx/hf_20261109_094914_f023d834-9796-4562-8023-31816c5042f8.glb" },
+    "secondary": { "local": "assets/models/secondary-roaster.glb", "remote": "https://d8j0ntlcm91z4.cloudfront.net/user_3IwRlPAP9EhpgLowGDUpmTSyMLx/hf_20261109_094917_a83dc2f5-e945-4ad1-8dee-589a28360b1e.glb" },
+    "distribution": { "local": "assets/models/distribution-truck.glb", "remote": "https://d8j0ntlcm91z4.cloudfront.net/user_3IwRlPAP9EhpgLowGDUpmTSyMLx/hf_20261109_094919_1ddd003b-ac30-4309-948f-2ee0059e74cf.glb" }
+  }
+}

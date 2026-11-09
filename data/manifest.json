@@ -1,0 +1,36 @@
+{
+  "csv": [
+    {
+      "title": "김 실험 데이터",
+      "file": "data/csv/sample_kim_experiment.csv",
+      "sample": true
+    }
+  ],
+  "videos": [
+    {
+      "title": "컨베이어 상단 · 마른김 이송",
+      "file": "data/videos/sample_depth_conveyor.mp4",
+      "kind": "depth",
+      "split": 10,
+      "depthMin": 700,
+      "depthMax": 900,
+      "sample": true
+    },
+    {
+      "title": "숙성 탱크 수면",
+      "file": "data/videos/sample_depth_aging_tank.mp4",
+      "kind": "depth",
+      "depthMin": 550,
+      "depthMax": 1000,
+      "sample": true
+    },
+    {
+      "title": "건조 프레임 적재",
+      "file": "data/videos/sample_depth_frame_stack.mp4",
+      "kind": "depth",
+      "depthMin": 650,
+      "depthMax": 1200,
+      "sample": true
+    }
+  ]
+}
