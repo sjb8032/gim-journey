@@ -9,6 +9,13 @@
 
 const P = (id, label, unit, min, max, step, value, opt, tol, eff = {}) => ({ id, label, unit, min, max, step, value, opt, tol, eff });
 
+// 시작 화면 오른쪽에 띄우는 유튜브 영상 (id 만 바꾸면 다른 영상으로 교체됩니다. null 이면 숨김)
+export const INTRO_VIDEO = {
+  youtube: 'NbN755R6BPU',
+  title: '세계 속 K-김 여행 · 특집 다큐 「씨위드 머니」',
+  source: '목포MBC',
+};
+
 export const DEFAULT_HARVEST = 600;     // 톤 (물김 기준 재배량)
 export const HARVEST_RANGE = [50, 1500, 10];
 export const DESIGN_HARVEST = 720;      // 설비가 설계된 기준 재배량
@@ -255,7 +262,7 @@ export const STAGES = [
   {
     key: 'secondary', no: 5, name: '2차 가공', en: 'SECONDARY', hue: '#8fd46b',
     title: '조미김 생산 라인', place: '김 스낵 · 조미김 공장', time: '14:00',
-    tagline: '마른김을 굽고 기름과 소금을 입혀 다시 굽고, 잘라서 질소 포장합니다.',
+    tagline: '마른김에서 이물을 골라내고, 굽고 조미해 다시 구운 뒤, 불량을 걸러 질소 포장합니다.',
     layout: 'line', env: 'factory2',
     flowUnit: '속', days: 250,
     inLabel: '마른김 투입', inUnit: '속', outLabel: '조미김 생산', outUnit: '봉',
@@ -264,10 +271,14 @@ export const STAGES = [
     econ: { price: 480, energyPerFlow: 1250, materialPerOut: 86, fixed: 14e8, capex: 46e8, life: 10 },
     months: { labels: ['1분기', '2분기', '3분기', '4분기'], w: [0.24, 0.23, 0.24, 0.29] },
     machines: [
-      { id: 'feed', name: '원초 투입 · 선별', type: 'feeder', cap: 1.5, loss: 0.01, disp: { f: 100 / 960, u: '장/분' },
+      { id: 'feed', name: '원초 투입', type: 'feeder', cap: 1.5, loss: 0.006, disp: { f: 100 / 960, u: '장/분' },
         params: [
           P('fspeed', '투입 속도', '장/분', 100, 600, 10, 280, 300, 120, { c: 0.6, y: 0.02 }),
-          P('sort', '이물 선별', '%', 50, 99, 1, 85, 90, 8, { q: 0.07, lm: 0.03 }),
+        ] },
+      { id: 'foreign', name: '이물 제거', type: 'foreign', reject: true, cap: 1.45, loss: 0.012, disp: { f: 100 / 960, u: '장/분' },
+        params: [
+          P('fsens', '이물 검출 민감도', '%', 50, 99, 1, 86, 92, 7, { q: 0.08, lm: 0.03 }),
+          P('air', '에어 분사 압력', 'bar', 1, 8, 0.1, 3.4, 4.5, 1.5, { y: 0.02, q: 0.03, e: 0.08 }),
         ] },
       { id: 'roast1', name: '1차 굽기', type: 'oven', hero: true, cap: 1.04, loss: 0.02, disp: { f: 100 / 960, u: '장/분' },
         params: [
@@ -290,9 +301,15 @@ export const STAGES = [
           P('pieces', '재단 규격', '매/장', 4, 16, 1, 8, 8, 3, { q: 0.03 }),
           P('kspeed', '칼날 속도', 'rpm', 200, 1200, 20, 700, 600, 200, { c: 0.4, y: 0.03 }),
         ] },
-      { id: 'metal', name: '금속 검출기', type: 'metal', cap: 1.7, loss: 0.003, disp: { f: 75 / 960, u: '봉/분' },
+      { id: 'defect', name: '불량 선별 · 배출', type: 'defect', reject: true, cap: 1.5, loss: 0.02, disp: { f: 75 / 960, u: '봉/분' },
         params: [
-          P('fe', '검출 감도(Fe)', 'mm', 0.5, 3, 0.1, 1.5, 1.0, 0.5, { q: 0.07, lm: -0.02 }),
+          P('burn', '탄 김 판정 기준', 'ΔE', 2, 12, 0.5, 6.5, 5, 2, { q: 0.08, lm: -0.02 }),
+          P('broken', '파손 허용치', '%', 0, 20, 1, 8, 5, 4, { q: 0.06, lm: -0.02 }),
+          P('vspeed', '검사 속도', '봉/분', 40, 220, 5, 110, 120, 45, { c: 0.5, q: 0.04 }),
+        ] },
+      { id: 'metal', name: '금속 검출기', type: 'metal', cap: 1.7, loss: 0.005, disp: { f: 75 / 960, u: '봉/분' },
+        params: [
+          P('fe', '검출 감도(Fe)', 'mm', 0.5, 3, 0.1, 1.5, 1.0, 0.5, { q: 0.07, lm: -0.01 }),
         ] },
       { id: 'pack2', name: '질소 충전 포장', type: 'packer', cap: 1.36, loss: 0.005, disp: { f: 75 / 960, u: '봉/분' },
         params: [
@@ -302,17 +319,22 @@ export const STAGES = [
     ],
     scenarios: [
       { id: 'oil', name: '식용유값 급등', icon: 'drop', desc: '참기름·식용유 원가가 40% 올랐습니다.', materialMul: 1.4 },
-      { id: 'claim', name: '이물 클레임', icon: 'warn', desc: '소비자 클레임으로 검사 기준이 강화됩니다.', qMul: 0.86, lossAdd: { metal: 0.01 } },
+      { id: 'claim', name: '이물 혼입 증가', icon: 'warn', desc: '원초에 패각·비닐 같은 이물이 늘어 선별 부담이 커졌습니다.', qMul: 0.9, lossAdd: { foreign: 0.03 } },
       { id: 'kfood', name: 'K-푸드 붐', icon: 'trend', desc: '해외 바이어 주문이 늘어 출고가가 오릅니다.', priceMul: 1.15 },
     ],
-    extra: (r) => ({ label: '봉당 원가', value: Math.round(r.cost / Math.max(1, r.out)).toLocaleString('ko-KR'), unit: '원/봉' }),
+    extra: (r) => {
+      const rej = r.machines.filter((m) => m.def.reject || m.id === 'metal').reduce((s, m) => s + m.processed * m.loss, 0);
+      return { label: '이물·불량 배출', value: ((rej / Math.max(1e-9, r.flowIn)) * 100).toFixed(1), unit: '%', note: `봉당 원가 ${Math.round(r.cost / Math.max(1, r.out)).toLocaleString('ko-KR')}원` };
+    },
     logs: [
+      ['foreign', '광학 선별 · 이물 {rand:1:6}건 배출 (패각·비닐·머리카락) · 에어 {foreign.air} bar'],
+      ['defect', '불량 배출 · 탄 김 {rand:3:15}장, 파손 {rand:2:10}장 → 불량함'],
       ['roast1', '1차 굽기 {roast1.temp}°C · 벨트 {roast1.belt} m/min'],
       ['season', '기름 {season.oil}g/장 · 소금 {season.salt}g/장 · 참기름 {season.sesame}%'],
       ['roast2', '2차 굽기 {roast2.temp2}°C · 체류 {roast2.dwell}초'],
       ['metal', '금속 검출 0건 · 테스트피스 통과'],
       ['pack2', '질소 치환 {pack2.n2}% · {rand:600:1400}봉 포장'],
-      ['feed', '원초 {rand:20:60}속 투입 · 선별 {feed.sort}%'],
+      ['feed', '원초 {rand:20:60}속 투입 · {feed.fspeed}장/분'],
     ],
   },
 

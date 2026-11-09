@@ -19,7 +19,8 @@ const LOOKS = {
   seed: (k) => (k <= 3 ? { s: [0.34, 0.12, 0.3], c: 0x5b4a8a } : k === 4 ? { s: [0.58, 0.3, 0.3], c: 0x7b58c2 } : { s: [0.58, 0.3, 0.3], c: 0xa6c3e8 }),
   auction: (k, it) => ({ s: [0.52, 0.4, 0.44], c: k <= 2 ? 0x2d5fae : it.alt ? 0x3f7ad6 : 0x24508f }),
   primary: (k) => (k <= 2 ? { s: [0.42, 0.2, 0.42], c: 0x4a2f3d } : k === 3 ? { s: [0.32, 0.1, 0.32], c: 0x3b2a30 } : k <= 5 ? { s: [0.6, 0.035, 0.6], c: 0x2b3329 } : k <= 7 ? { s: [0.58, 0.025, 0.58], c: 0x0f1315 } : { s: [0.62, 0.22, 0.62], c: 0x1b2024 }),
-  secondary: (k) => (k <= 1 ? { s: [0.6, 0.025, 0.6], c: 0x111517 } : k === 2 ? { s: [0.6, 0.03, 0.6], c: 0x1f3d24 } : k <= 4 ? { s: [0.6, 0.035, 0.6], c: 0x3c6a2e } : k <= 6 ? { s: [0.3, 0.05, 0.4], c: 0x4a7a33 } : { s: [0.38, 0.12, 0.28], c: 0xe6d3a3 }),
+  // feed, foreign, roast1, season, roast2, cut2, defect, metal, pack2 (k = machines passed)
+  secondary: (k) => (k <= 2 ? { s: [0.6, 0.025, 0.6], c: 0x111517 } : k === 3 ? { s: [0.6, 0.03, 0.6], c: 0x1f3d24 } : k <= 5 ? { s: [0.6, 0.035, 0.6], c: 0x3c6a2e } : k <= 8 ? { s: [0.3, 0.05, 0.4], c: 0x4a7a33 } : { s: [0.38, 0.12, 0.28], c: 0xe6d3a3 }),
   distribution: (k, it) => ({ s: [0.5, 0.38, 0.5], c: k >= 3 && it.alt ? 0xefdcae : 0xc19a62 }),
 };
 
@@ -737,10 +738,11 @@ export class Twin {
     if (this.quality === 'high') this.composer.render(dt);
     else this.renderer.render(this.scene, this.camera);
     this.labelRenderer.render(this.scene, this.camera);
-    // adaptive quality
-    const f = this.fps; f.acc += dt; f.frames++;
-    if (f.acc > 2.5) {
-      const fps = f.frames / f.acc; f.acc = 0; f.frames = 0;
+    // adaptive quality (measured in real time, not the capped simulation step)
+    const f = this.fps; f.frames++;
+    if (!f.t0) f.t0 = now;
+    if (now - f.t0 > 2500) {
+      const fps = (f.frames * 1000) / (now - f.t0); f.t0 = now; f.frames = 0;
       if (this.quality === 'high' && fps < 26) { f.low++; if (f.low >= 2) { this.setQuality('low'); this.onQualityDrop?.(); } } else f.low = 0;
     }
   }
@@ -765,6 +767,7 @@ export class Twin {
     const ms = r.machines;
     const alive = [];
     for (const it of F.items) {
+      if (it.kick) { it.kick.t += dt / 0.55; if (it.kick.t < 1) alive.push(it); continue; }
       if (it.pop > 0) { it.pop -= dt * 4; if (it.pop > 0) alive.push(it); continue; }
       const prevD = it.d;
       it.d += speed * dt;
@@ -772,10 +775,22 @@ export class Twin {
       while (it.k < this.mPos.length && it.d >= this.mPos[it.k] && prevD <= this.mPos[it.k] + 1e-6) {
         const mm = ms[it.k];
         const overflowFrac = mm.inFlow > 0 ? mm.overflow / mm.inFlow : 0;
-        const pLoss = Math.min(0.9, mm.loss * 1.4 + overflowFrac);
+        const st3 = this.items3d[mm.id];
+        // reject stations show their rejects more often than the true rate so the bin action is visible
+        const visLoss = st3?.r.bin ? Math.min(0.4, mm.loss * 8) : mm.loss * 1.4;
+        const pLoss = Math.min(0.9, visLoss + overflowFrac);
         it.k++;
-        if (Math.random() < pLoss) { it.pop = 1; break; }
+        if (Math.random() < pLoss) {
+          if (st3?.r.bin && Math.random() < visLoss / pLoss) {
+            const p0 = this.pointAt(this.mPos[it.k - 1], new THREE.Vector3()); p0.y = BELT_Y + 0.1;
+            const p1 = st3.group.localToWorld(st3.r.bin.clone());
+            it.kick = { t: 0, p0, p1 };
+            st3.r.reject?.();
+          } else it.pop = 1;
+          break;
+        }
       }
+      if (it.kick) { alive.push(it); continue; }
       if (it.pop > 0) {
         const p = this.pointAt(it.d, F.pv);
         F.sparks.emit(p.x, p.y + 0.3, p.z, 0, 0.8, 0, 0.6);
@@ -789,6 +804,18 @@ export class Twin {
     F.sparks.update(dt, 0, () => {}, -2.5, 0.5);
     let i = 0;
     for (const it of F.items) {
+      if (it.kick) {
+        const k = Math.min(1, it.kick.t), look = F.look(Math.max(0, it.k - 1), it);
+        F.pv.lerpVectors(it.kick.p0, it.kick.p1, k); F.pv.y += Math.sin(Math.PI * k) * 0.55;
+        const sc = 1 - 0.25 * k;
+        F.sv.set(look.s[0] * sc, look.s[1] * sc, look.s[2] * sc);
+        F.q.setFromAxisAngle(new THREE.Vector3(1, 0, 0), k * 2.4);
+        F.tmpM.compose(F.pv, F.q, F.sv);
+        F.im.setMatrixAt(i, F.tmpM);
+        F.im.setColorAt(i, F.tmpC.setHex(0xd8404f));
+        i++;
+        continue;
+      }
       const p = this.pointAt(it.d, F.pv);
       const look = F.look(it.k, it);
       const sc = it.pop > 0 ? Math.max(0.01, it.pop) : 1;

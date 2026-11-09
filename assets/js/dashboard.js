@@ -18,6 +18,7 @@ export class Dashboard {
     this.live = [];
     this.timers = [];
     this.build();
+    window.__dash = this;   // handy for debugging in the browser console
     app.on((reason) => { if (this.active) this.refresh(reason); });
   }
 
@@ -498,7 +499,7 @@ export class Dashboard {
         const up = diff > 0.05, down = diff < -0.05;
         k.dl.className = `dl ${up ? 'up' : down ? 'down' : ''}`;
         k.dl.textContent = `${up ? '▲' : down ? '▼' : '―'} ${Math.abs(diff).toFixed(1)}${d.pp ? (d.unitless ? '점' : '%p') : '%'} 기본 설정 대비`;
-      } else k.dl.textContent = st.key === 'distribution' ? `수출 비중 ${(r.exportShare * 100).toFixed(0)}% · ${r.countries}개국` : '현재 설정 기준';
+      } else k.dl.textContent = ex.note || (st.key === 'distribution' ? `수출 비중 ${(r.exportShare * 100).toFixed(0)}% · ${r.countries}개국` : '현재 설정 기준');
       if (reason === 'ai-done') { k.tile.classList.remove('flash'); void k.tile.offsetWidth; k.tile.classList.add('flash'); }
     }
   }

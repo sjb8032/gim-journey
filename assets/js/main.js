@@ -1,5 +1,5 @@
 // App shell: asset manifest, router, landing, journey, kiosk tour.
-import { STAGES, HARVEST_RANGE } from './config.js';
+import { STAGES, HARVEST_RANGE, INTRO_VIDEO } from './config.js';
 import { createState, run, runBaseline } from './sim.js';
 import { $, $$, h, icon, money, moneyStr, count, setImg, toast, store, reducedMotion, isCoarse } from './util.js';
 import { chainChart } from './charts.js';
@@ -46,7 +46,7 @@ function activate(name, arg) {
   for (const [k, el] of Object.entries(views)) el.classList.toggle('is-active', k === name);
   if (name !== 'stage') dash?.hide();
   if (name !== 'data') dataView?.hide?.();
-  if (name === 'home') homeBg.start(); else homeBg.stop();
+  if (name === 'home') { homeBg.start(); film.play(); } else { homeBg.stop(); film.pause(); }
   if (name === 'stage') { dash ||= new Dashboard(views.stage, app); dash.show(arg); }
   if (name === 'data') {
     import('./data.js').then(({ DataView }) => { dataView ||= new DataView(views.data); dataView.show(arg); })
@@ -168,6 +168,52 @@ function initHome() {
     }
   } catch { /* QR optional */ }
 }
+
+// ---------------------------------------------------------------- intro video (YouTube)
+const film = (() => {
+  const V = INTRO_VIDEO;
+  let card = null;
+  const src = (autoplay) => {
+    const id = encodeURIComponent(V.youtube);
+    const q = new URLSearchParams({ autoplay: autoplay ? '1' : '0', mute: '1', playsinline: '1', rel: '0', modestbranding: '1', enablejsapi: '1', loop: '1', playlist: V.youtube });
+    if (/^https?:/.test(location.protocol)) q.set('origin', location.origin);
+    return `https://www.youtube-nocookie.com/embed/${id}?${q}`;
+  };
+  const frame = (autoplay) => h('iframe', {
+    src: src(autoplay), title: `${V.title} (${V.source})`, loading: 'eager',
+    allow: 'autoplay; encrypted-media; picture-in-picture; fullscreen', allowfullscreen: true,
+    referrerpolicy: 'strict-origin-when-cross-origin',
+  });
+  const send = (func) => { try { card?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func, args: [] }), '*'); } catch { /* ignore */ } };
+  const wide = () => window.matchMedia('(min-width: 1100px)').matches;
+  function init() {
+    if (!V?.youtube) return;
+    $('#film-title').textContent = V.title;
+    $('#film-src').textContent = V.source ? `· ${V.source}` : '';
+    $('#film-open').hidden = false;
+    const mount = () => {
+      if (!wide() || card) return;
+      card = frame(true);
+      $('#film-frame').append(card);
+      $('#home-film').hidden = false;
+    };
+    mount();
+    window.matchMedia('(min-width: 1100px)').addEventListener('change', mount);
+    const modal = $('#film-modal');
+    const close = () => { modal.hidden = true; $('#film-modal-frame').innerHTML = ''; };
+    $('#film-open').addEventListener('click', () => {
+      send('pauseVideo');
+      const f = frame(true); f.src = f.src.replace('mute=1', 'mute=0');
+      $('#film-modal-frame').append(f);
+      modal.hidden = false;
+      $('#film-close').focus();
+    });
+    $('#film-close').addEventListener('click', close);
+    modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) close(); });
+  }
+  return { init, play: () => send('playVideo'), pause: () => { send('pauseVideo'); } };
+})();
 
 // ---------------------------------------------------------------- journey
 let journeyBuilt = false;
@@ -294,6 +340,7 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) homeB
   await loadAssets();
   app.recompute('boot');
   initHome();
+  film.init();
   window.addEventListener('hashchange', route);
   route();
   bumpIdle();

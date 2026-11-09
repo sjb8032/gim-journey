@@ -767,6 +767,96 @@ B.feeder = (M) => {
   };
 };
 
+// ---------- reject stations (이물 제거 · 불량 배출) ----------
+// A red bin on the front side; rejected items are thrown into it by the twin (r.bin = landing point).
+function rejectBin(g, M, x, z) {
+  const bin = new THREE.Group(); bin.position.set(x, 0, z); g.add(bin);
+  const red = new THREE.MeshStandardMaterial({ color: 0xc8303f, roughness: 0.55, metalness: 0.1, emissive: 0x3a0610, emissiveIntensity: 0.6 });
+  const W = 0.72, D = 0.56, H = 0.42, t = 0.04;
+  mesh(bx(W, t, D), red, 0, t / 2, 0, bin);
+  mesh(bx(W, H, t), red, 0, H / 2, -D / 2, bin);
+  mesh(bx(W, H, t), red, 0, H / 2, D / 2, bin);
+  mesh(bx(t, H, D), red, -W / 2, H / 2, 0, bin);
+  mesh(bx(t, H, D), red, W / 2, H / 2, 0, bin);
+  mesh(bx(W * 0.7, 0.07, 0.012), M.white, 0, H * 0.6, D / 2 + 0.012, bin).castShadow = false;
+  const fill = mesh(bx(W - 2 * t - 0.01, 1, D - 2 * t - 0.01), new THREE.MeshStandardMaterial({ color: 0x2b2f2a, roughness: 0.95 }), 0, 0, 0, bin);
+  fill.castShadow = false;
+  let level = 0.18;
+  const set = () => { const hh = Math.max(0.005, level * (H - 0.06)); fill.scale.y = hh; fill.position.y = t + hh / 2; };
+  set();
+  return {
+    land: new THREE.Vector3(x, H * 0.55, z),
+    add() { level += 0.05; if (level > 1) level = 0.15; set(); },   // emptied when full
+  };
+}
+function chute(g, M, x, z0, z1, y0, y1) {
+  const len = Math.hypot(z1 - z0, y1 - y0);
+  const c = mesh(bx(0.42, 0.03, len), M.steel, x, (y0 + y1) / 2, (z0 + z1) / 2, g);
+  c.rotation.x = Math.atan2(y0 - y1, z1 - z0);
+  for (const s of [-1, 1]) { const w = mesh(bx(0.03, 0.1, len), M.steel, s * 0.2, 0.05, 0, c); w.castShadow = false; }
+}
+
+B.foreign = (M) => {
+  const g = new THREE.Group();
+  legs(g, M, 1.8, 0.9, 0.5);
+  mesh(rbox(1.8, 0.08, 0.95, 0.02), M.steelDark, 0, 0.5, 0, g);
+  for (const x of [-0.68, 0.68]) for (const z of [-0.5, 0.5]) mesh(bx(0.06, 0.62, 0.06), M.steel, x, BELT_Y + 0.28, z, g);
+  mesh(rbox(1.55, 0.5, 1.12, 0.06), M.paintLight, 0, BELT_Y + 0.82, 0, g);
+  mesh(bx(1.3, 0.05, 0.02), M.accent, 0, BELT_Y + 0.72, 0.57, g).castShadow = false;
+  const scanMat = new THREE.MeshBasicMaterial({ color: 0x9fe8ff, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
+  const scan = mesh(geo('scanLine', () => { const p = new THREE.PlaneGeometry(0.05, 0.95); p.rotateX(-Math.PI / 2); return p; }), scanMat, 0, BELT_Y + 0.08, 0, g);
+  scan.castShadow = false;
+  const bar = mesh(bx(0.08, 0.08, 0.5), M.steel, 0.62, BELT_Y + 0.12, -0.56, g); bar.castShadow = false;
+  for (const dx of [-0.12, 0, 0.12]) { const n = mesh(cy(0.02, 0.04, 0.12, 8), M.steelDark, 0.62 + dx, BELT_Y + 0.12, -0.36, g); n.rotation.x = Math.PI / 2; }
+  chute(g, M, 0.62, 0.36, 0.98, BELT_Y - 0.02, 0.44);
+  const bin = rejectBin(g, M, 0.62, 1.2);
+  const puff = new Particles(90, { color: 0xdff6ff, size: 0.12 });
+  g.add(puff.points);
+  const lamp = statusLamp(g, M, -0.82, 0.5, -0.45);
+  let puffT = 0;
+  return {
+    group: g, len: 2.0, depth: 1.5, h: 1.75, bin: bin.land,
+    reject() { puffT = 0.22; bin.add(); },
+    tick(dt, t, s) {
+      scan.position.x = Math.sin(t * (3 + 2 * s.run)) * 0.62;
+      scanMat.opacity = 0.35 + 0.3 * (s.v.fsens ?? 85) / 100;
+      puff.update(dt, puffT > 0 ? 160 : 0, (emit) => emit(0.62 + (Math.random() - 0.5) * 0.25, BELT_Y + 0.13, -0.3, (Math.random() - 0.5) * 0.3, 0.15, 1.4 + Math.random() * (s.v.air ?? 4) * 0.3, 0.3), 0, 1.5);
+      puffT -= dt;
+      setLamp(lamp, s.util, t);
+    },
+  };
+};
+
+B.defect = (M) => {
+  const g = new THREE.Group();
+  for (const z of [-0.78, 0.78]) mesh(bx(0.1, 1.75, 0.1), M.steelDark, -0.32, 0.88, z, g);
+  mesh(bx(0.2, 0.15, 1.75), M.paint, -0.32, 1.78, 0, g);
+  mesh(rbox(0.32, 0.26, 0.32, 0.04), M.panel, -0.32, 1.56, 0, g);
+  mesh(cy(0.07, 0.07, 0.1, 16), M.accent, -0.32, 1.4, 0, g);
+  const laserMat = new THREE.MeshBasicMaterial({ color: 0x8fd46b, transparent: true, opacity: 0.45, side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false });
+  const fan = mesh(geo('laserFan2', () => new THREE.ConeGeometry(0.42, 0.75, 3, 1, true)), laserMat, -0.32, 1.0, 0, g);
+  fan.scale.set(1, 1, 0.05); fan.rotation.z = Math.PI; fan.castShadow = false;
+  const cylM = mesh(cy(0.08, 0.08, 0.45, 14), M.steel, 0.38, BELT_Y + 0.1, -0.82, g); cylM.rotation.x = Math.PI / 2;
+  const rod = mesh(cy(0.025, 0.025, 0.42, 8), M.steelDark, 0.38, BELT_Y + 0.1, -0.5, g); rod.rotation.x = Math.PI / 2;
+  const paddle = mesh(bx(0.34, 0.12, 0.04), M.yellow, 0.38, BELT_Y + 0.1, -0.36, g);
+  chute(g, M, 0.38, 0.36, 0.98, BELT_Y - 0.02, 0.44);
+  const bin = rejectBin(g, M, 0.38, 1.2);
+  const lamp = statusLamp(g, M, -0.32, 1.85, 0.55);
+  let push = 0;
+  return {
+    group: g, len: 1.6, depth: 1.8, h: 2.0, bin: bin.land,
+    reject() { push = 1; bin.add(); },
+    tick(dt, t, s) {
+      push = Math.max(0, push - dt * 3.5);
+      const e = Math.sin(Math.PI * Math.min(1, push)) ;
+      paddle.position.z = -0.36 + e * 0.5; rod.position.z = -0.5 + e * 0.25;
+      fan.position.x = -0.32 + Math.sin(t * 3) * 0.08;
+      laserMat.opacity = 0.3 + 0.2 * Math.abs(Math.sin(t * 9));
+      setLamp(lamp, s.util, t);
+    },
+  };
+};
+
 export const BUILDERS = B;
 
 export function buildMachine(type, M) {
