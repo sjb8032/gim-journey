@@ -302,7 +302,7 @@
    ========================================================================= */
 [data-theme="analytics"] .view-stage { background: var(--ink-0); }
 [data-theme="analytics"] .stage-hero { border: 0; background: var(--navy); color: #fff; box-shadow: var(--shadow-card); }
-[data-theme="analytics"] .stage-hero::after { background: linear-gradient(180deg, rgba(15,23,42,.2), rgba(15,23,42,.9) 82%); }
+[data-theme="analytics"] .stage-hero::after { background: linear-gradient(180deg, rgba(15,23,42,.5), rgba(15,23,42,.92) 70%); }
 [data-theme="analytics"] .stage-hero .eyebrow { color: #93c5fd; }
 [data-theme="analytics"] .stage-hero h2 { font-family: var(--font-display); font-weight: 700; font-size: 1.625rem; letter-spacing: -0.03em; color: #fff; }
 [data-theme="analytics"] .stage-hero p.tag { color: #cbd5e1; }
