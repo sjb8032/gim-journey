@@ -142,6 +142,7 @@ const homeBg = (() => {
   };
 })();
 
+// 홈 배경 미디어와 여섯 단계 바로가기, 휴대폰 접속용 QR을 준비한다.
 function initHome() {
   const A = window.__ASSETS;
   const img = $('#home-img');
@@ -156,7 +157,7 @@ function initHome() {
     next();
   }
   // steps strip
-  $('#home-steps').innerHTML = STAGES.map((s) => `<li><a href="#stage-${s.no}" style="--hue:${s.hue}"><span class="n">${String(s.no).padStart(2, '0')}</span><span class="t">${s.name}</span><span class="e">${s.en}</span></a></li>`).join('');
+  $('#home-steps').innerHTML = STAGES.map((s) => `<li><a href="#stage-${s.no}" style="--hue:${s.hue}"><span class="n">${String(s.no).padStart(2, '0')}</span><span class="t">${s.name}</span></a></li>`).join('');
   // QR to open on a phone
   try {
     if (window.qrcode && /^https?:/.test(location.protocol)) {

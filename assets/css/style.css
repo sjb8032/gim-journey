@@ -106,14 +106,6 @@ ol, ul { list-style: none; }
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--hair);
 }
-.brand { display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.16em; font-weight: 600; white-space: nowrap; }
-.brand-mark {
-  width: 22px; height: 22px; border-radius: 4px;
-  background:
-    linear-gradient(135deg, rgba(178,141,255,.55), rgba(63,200,228,.25) 45%, rgba(143,212,107,.35)),
-    #0c0f12;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.14), 0 0 18px rgba(94,224,193,.25);
-}
 .topbar .spacer { flex: 1; }
 .topnav { display: flex; align-items: center; gap: 6px; }
 .topnav a { padding: 8px 12px; border-radius: var(--r-s); color: var(--fg-2); font-size: 0.875rem; }
@@ -206,16 +198,6 @@ ol, ul { list-style: none; }
   -webkit-background-clip: text; background-clip: text; color: transparent;
   filter: drop-shadow(0 8px 40px rgba(0,0,0,.45));
 }
-.home-title .en {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: clamp(0.7rem, 1.1vw, 0.9rem);
-  letter-spacing: 0.42em;
-  font-weight: 500;
-  color: var(--fg-2);
-  -webkit-text-fill-color: var(--fg-2);
-  margin-top: 18px;
-}
 .home-sub { font-size: clamp(1rem, 1.5vw, 1.25rem); color: #d3dbe6; max-width: 34em; line-height: 1.6; text-wrap: pretty; }
 .home-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
 .home-cta .btn-pearl svg { transition: transform .3s var(--ease); }
@@ -241,7 +223,6 @@ ol, ul { list-style: none; }
 .home-steps a:hover { background: linear-gradient(180deg, color-mix(in srgb, var(--hue) 24%, transparent), transparent); transform: translateY(-3px); }
 .home-steps .n { font-family: var(--font-mono); font-size: 0.6875rem; color: var(--fg-3); letter-spacing: .1em; }
 .home-steps .t { font-weight: 600; font-size: 0.9375rem; }
-.home-steps .e { font-family: var(--font-mono); font-size: 0.625rem; letter-spacing: .14em; color: var(--fg-3); }
 
 .home-side {
   position: absolute;
@@ -784,7 +765,6 @@ ol, ul { list-style: none; }
   .home-main { top: 44%; transform: translateY(-50%); padding-left: 0; }
   .home-steps { padding-left: 0; gap: 4px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
   .home-steps a { padding: 8px 8px 6px; }
-  .home-steps .e { display: none; }
   .topnav a { display: none; }
   .journey-head { grid-template-columns: minmax(0, 1fr); gap: 14px; }
   .journey-sum dd { font-size: 1.25rem; }
