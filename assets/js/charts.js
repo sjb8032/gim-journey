@@ -122,7 +122,7 @@ export function utilBars(host, rows, onPick) {
 /** Value chain: one column per stage (headline revenue), labelled at the cap. */
 export function chainChart(host, stages, fmt, onPick) {
   const W = Math.max(320, host.clientWidth || 600), H = 210;
-  const L = 8, R = 8, T = 24, B = 40;
+  const L = 8, R = 8, T = 24, B = 26;
   const n = stages.length;
   const max = niceMax(Math.max(...stages.map((s) => s.value)) * 1.05);
   const band = (W - L - R) / n;
@@ -137,8 +137,7 @@ export function chainChart(host, stages, fmt, onPick) {
     out += `<rect x="${cx - band / 2}" y="${T - 10}" width="${band}" height="${H - T - B + 10}" fill="transparent"/>`;
     out += `<path d="M${cx - bw / 2},${Y(0)} V${y + r} Q${cx - bw / 2},${y} ${cx - bw / 2 + r},${y} H${cx + bw / 2 - r} Q${cx + bw / 2},${y} ${cx + bw / 2},${y + r} V${Y(0)} Z" fill="${s.hue}" fill-opacity=".85"/>`;
     out += `<text x="${cx}" y="${y - 7}" text-anchor="middle" fill="var(--fg)" font-size="12" font-weight="600">${fmt(s.value)}</text>`;
-    out += `<text x="${cx}" y="${H - 22}" text-anchor="middle" fill="var(--fg-2)" font-size="11.5">${s.name}</text>`;
-    out += `<text x="${cx}" y="${H - 8}" text-anchor="middle" fill="var(--fg-3)" font-size="10" font-family="var(--font-mono)">${s.sub}</text>`;
+    out += `<text x="${cx}" y="${H - 8}" text-anchor="middle" fill="var(--fg-2)" font-size="11.5">${s.name}</text>`;
     out += `</g>`;
   });
   let svg = host.querySelector('svg');

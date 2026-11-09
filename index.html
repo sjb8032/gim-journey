@@ -60,16 +60,15 @@
       <a class="back-link" href="#home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg><span>처음으로</span></a>
       <span class="spacer"></span>
       <nav class="topnav" aria-label="바로가기"><a href="#data">데이터 보기</a></nav>
-      <button class="btn btn-quiet js-tour" aria-pressed="false" type="button">자동 시연</button>
       <button class="icon-btn js-fs" aria-label="전체 화면" title="전체 화면 (F)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
     </header>
     <div class="journey-wrap">
       <div class="journey-head">
-        <div>
-          <p class="eyebrow">THE JOURNEY · 6 STAGES</p>
-          <h2 class="display-l">종자에서 수출까지</h2>
-          <p class="muted">재배량을 바꾸면 여섯 단계의 생산량과 매출이 사슬처럼 함께 움직입니다. 카드를 눌러 각 공장의 운영 대시보드를 열어 보세요.</p>
-        </div>
+        <h2 class="display-l">종자에서 수출까지</h2>
+        <p class="muted">재배량을 바꾸면 여섯 단계의 생산량과 매출이 함께 변합니다. 카드를 눌러 각 공장의 운영 대시보드를 열어 보세요.</p>
+      </div>
+      <div class="track-wrap"><ol class="track" id="track" aria-label="여섯 단계"></ol></div>
+      <div class="journey-controls">
         <div class="harvest-ctl">
           <div class="row"><label for="j-R-range">재배량 (물김 기준)</label><span class="step-btns"><button id="j-minus" type="button" aria-label="50톤 줄이기">−</button><button id="j-plus" type="button" aria-label="50톤 늘리기">+</button></span></div>
           <div class="big-num"><output id="j-R" for="j-R-range">600</output><span>톤</span></div>
@@ -82,9 +81,8 @@
           <div><dt>체인 전체 영업이익</dt><dd id="j-profit">-</dd></div>
         </dl>
       </div>
-      <div class="track-wrap"><ol class="track" id="track" aria-label="여섯 단계"></ol></div>
       <div class="journey-bottom">
-        <figure class="panel"><div class="panel-h"><h3>단계별 매출 · 가치 사슬</h3><span class="eyebrow">막대를 누르면 공장으로</span></div><div id="j-chain" class="chart"></div></figure>
+        <figure class="panel"><div class="panel-h"><h3>단계별 매출 | 가치 사슬</h3></div><div id="j-chain" class="chart"></div></figure>
         <div class="panel journey-actions">
           <h3>시연 팁</h3>
           <p>재배량을 720톤 넘게 올려 보세요. 설계 용량을 넘긴 설비가 빨간 병목으로 바뀝니다.</p>
