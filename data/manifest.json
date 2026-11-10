@@ -8,6 +8,11 @@
   ],
   "videos": [
     {
+      "kind": "rgb",
+      "title": "김 시료 타임랩스 · 5초 간격 6분 40초",
+      "file": "data/videos/kim_timelapse_rgb.mp4"
+    },
+    {
       "title": "컨베이어 상단 · 마른김 이송",
       "file": "data/videos/sample_depth_conveyor.mp4",
       "kind": "depth",
