@@ -8,8 +8,8 @@
   "videos": [
     {
       "kind": "rgb",
-      "title": "김 시료 타임랩스 · 5초 간격 6분 40초",
-      "file": "data/videos/kim_timelapse_rgb.mp4"
+      "title": "김 시료 비전 데이터 · 색 보정 + R·G·B 채널",
+      "file": "data/videos/kim_vision_quad.mp4"
     }
   ]
 }
