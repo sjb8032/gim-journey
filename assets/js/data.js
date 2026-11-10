@@ -308,31 +308,55 @@ export class DataView {
     const top = Math.max(0, wrap.scrollTop - HEAD_H);
     const start = Math.max(0, Math.floor(top / ROW_H) - 6);
     const end = Math.min(this.view.length, Math.ceil((top + wrap.clientHeight) / ROW_H) + 6);
-    if (this.renderedRange && this.renderedRange[0] === start && this.renderedRange[1] === end) return;
-    this.renderedRange = [start, end];
     const d = this.csv;
-    const need = end - start;
-    while (this.pool.length < need) {
-      const tr = h('div', { class: 'tr', style: { width: `${this.totalW}px` } });
-      this.widths.forEach((w, c) => tr.append(h('div', { class: `td ${c === 0 || d.types[c - 1] === 'num' ? 'num' : ''}`, style: { width: `${w}px` } })));
-      this.rowsEl.append(tr); this.pool.push(tr);
+    // 열이 많은 표(수십 열)는 화면에 보이는 열만 채운다. 보이지 않는 칸까지 매번 다시 쓰면 스크롤이 끊긴다.
+    const nCol = d.header.length;
+    if (!this.colX || this.colX.length !== nCol + 1) {
+      this.colX = [0];
+      for (let c = 0; c < nCol; c++) this.colX.push(this.colX[c] + this.widths[c + 1]);
     }
-    this.pool.forEach((tr, k) => {
-      const vi = start + k;
-      if (vi >= end) { tr.style.display = 'none'; return; }
-      tr.style.display = '';
-      tr.style.top = `${vi * ROW_H}px`;
+    const left = wrap.scrollLeft - this.widths[0], right = wrap.scrollLeft + wrap.clientWidth;
+    let c0 = 0; while (c0 < nCol - 1 && this.colX[c0 + 1] < left) c0++;
+    let c1 = c0; while (c1 < nCol && this.colX[c1] < right) c1++;
+    c0 = Math.max(0, c0 - 3); c1 = Math.min(nCol, c1 + 3);
+    const rr = this.renderedRange;
+    if (rr && rr[0] === start && rr[1] === end && rr[2] === c0 && rr[3] === c1) return;
+    this.renderedRange = [start, end, c0, c1];
+    const need = end - start;
+    if (this.pool.length < need) {
+      while (this.pool.length < need) {
+        const tr = h('div', { class: 'tr', style: { width: `${this.totalW}px` } });
+        this.widths.forEach((w, c) => tr.append(h('div', { class: `td ${c === 0 || d.types[c - 1] === 'num' ? 'num' : ''}`, style: { width: `${w}px` } })));
+        this.rowsEl.append(tr); this.pool.push(tr);
+      }
+      this.pool.forEach((tr) => { tr._vi = -1; });
+    }
+    // 행 번호로 자리를 정해 두면, 한두 줄 내릴 때 새로 들어온 행만 다시 쓴다.
+    const P = this.pool.length;
+    const used = new Set();
+    for (let vi = start; vi < end; vi++) {
+      const tr = this.pool[vi % P];
+      used.add(tr);
+      if (tr._vi === vi && tr._c0 <= c0 && tr._c1 >= c1) continue;
+      const same = tr._vi === vi;
       const ri = this.view[vi];
       const row = d.rows[ri];
       const cells = tr.children;
-      cells[0].textContent = ri + 1;
-      for (let c = 0; c < row.length; c++) {
+      if (!same) {
+        tr.style.display = '';
+        tr.style.top = `${vi * ROW_H}px`;
+        cells[0].textContent = ri + 1;
+      }
+      const lim = Math.min(c1, row.length);
+      for (let c = c0; c < lim; c++) {
         const cell = cells[c + 1];
         cell.textContent = row[c];
         cell.title = row[c].length > 18 ? row[c] : '';
         cell.classList.toggle('hl', c === this.selCol);
       }
-    });
+      tr._vi = vi; tr._c0 = c0; tr._c1 = c1;
+    }
+    for (const tr of this.pool) if (!used.has(tr) && tr._vi !== -1) { tr.style.display = 'none'; tr._vi = -1; }
   }
 
   renderStats() {
