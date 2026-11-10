@@ -120,11 +120,13 @@ export function utilBars(host, rows, onPick) {
 }
 
 /** Value chain: one column per stage (headline revenue), labelled at the cap. */
-export function chainChart(host, stages, fmt, onPick) {
+export function chainChart(host, stages, fmt, onPick, scaleMax = 0) {
   const W = Math.max(320, host.clientWidth || 600), H = 210;
   const L = 8, R = 8, T = 24, B = 26;
   const n = stages.length;
-  const max = niceMax(Math.max(...stages.map((s) => s.value)) * 1.05);
+  // scaleMax(슬라이더 최대일 때의 매출)를 받으면 눈금을 고정한다. 값이 커질수록 막대도 계속 높아진다.
+  const peak = Math.max(...stages.map((s) => s.value));
+  const max = scaleMax > 0 ? Math.max(scaleMax, peak) * 1.05 : niceMax(peak * 1.05);
   const band = (W - L - R) / n;
   const bw = Math.min(46, band * 0.5);
   const Y = (v) => T + (1 - v / max) * (H - T - B);

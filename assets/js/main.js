@@ -277,7 +277,9 @@ function renderJourney() {
   const totalProfit = rs.reduce((s, r) => s + r.profit, 0);
   const tp = money(totalProfit);
   $('#j-profit').innerHTML = `${tp.v}<small>${tp.u}</small>`;
-  chainChart($('#j-chain'), rs.map((r) => ({ name: r.st.name, hue: r.st.hue, value: r.headline })), moneyStr, (i) => { location.hash = `#stage-${i + 1}`; });
+  // 눈금은 재배량이 최대일 때의 매출에 맞춰 고정한다. 그래야 슬라이더를 올릴 때 막대가 줄지 않고 계속 커진다.
+  const scaleMax = Math.max(...run({ ...S, R: HARVEST_RANGE[1] }).map((r) => r.headline));
+  chainChart($('#j-chain'), rs.map((r) => ({ name: r.st.name, hue: r.st.hue, value: r.headline })), moneyStr, (i) => { location.hash = `#stage-${i + 1}`; }, scaleMax);
 }
 
 app.on(() => { if (current?.name === 'journey' || !journeyBuilt) { if (journeyBuilt) renderJourney(); } });
