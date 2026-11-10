@@ -192,7 +192,8 @@ ol, ul { list-style: none; }
   font-size: clamp(3.6rem, 10.5vw, 9.5rem);
   line-height: 0.98;
   letter-spacing: -0.035em;
-  margin: 14px 0 18px;
+  margin: 14px 0 calc(18px - 0.14em);
+  padding-bottom: 0.14em; /* 글자 아래쪽(받침)이 그라데이션 영역 밖으로 잘리지 않게 */
   text-wrap: balance;
   background: linear-gradient(180deg, #fffaf0 0%, #e9e0cc 70%, #b9ae98 100%);
   -webkit-background-clip: text; background-clip: text; color: transparent;

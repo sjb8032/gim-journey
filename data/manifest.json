@@ -1,9 +1,8 @@
 {
   "csv": [
     {
-      "title": "김 실험 데이터",
-      "file": "data/csv/sample_kim_experiment.csv",
-      "sample": true
+      "title": "센서·비전 통합 로그 (2026-09-18~19, 5초 간격)",
+      "file": "data/csv/sensor_and_vision_log.csv"
     }
   ],
   "videos": [
