@@ -201,13 +201,14 @@ export class DataView {
     this.el.stats.innerHTML = '';
   }
 
+  // CSV를 읽고 출처 표시와 표, 통계를 갱신한다.
   async loadCsv(entry) {
     if (!entry) return;
     const E = this.el;
     E.title.textContent = entry.title;
-    E.badge.hidden = !(entry.sample || entry.local);
-    E.badge.className = `badge ${entry.sample ? 'sample' : 'local'}`;
-    E.badge.textContent = entry.sample ? 'SAMPLE · 실제 데이터로 교체' : '로컬 파일';
+    E.badge.hidden = !entry.local;
+    E.badge.className = 'badge local';
+    E.badge.textContent = '로컬 파일';
     try {
       let buf = entry.buffer;
       if (!buf) {
@@ -265,6 +266,7 @@ export class DataView {
     this.applyFilter();
   }
 
+  // 검색과 정렬을 적용하고 행·열 개수, 표와 통계를 갱신한다.
   applyFilter() {
     const d = this.csv; if (!d) return;
     const qv = this.el.search.value.trim().toLowerCase();
@@ -288,7 +290,7 @@ export class DataView {
     this.el.table.style.height = `${HEAD_H + idx.length * ROW_H}px`;
     this.rowsEl.style.height = `${idx.length * ROW_H}px`;
     const numCols = d.types.filter((t) => t === 'num').length;
-    this.el.meta.innerHTML = `<span>행 <b>${idx.length.toLocaleString('ko-KR')}</b>${qv ? ` / ${d.rows.length.toLocaleString('ko-KR')}` : ''}</span><span>열 <b>${d.header.length}</b> (숫자 ${numCols})</span><span>인코딩 <b>${d.enc}</b></span><span>구분자 <b>${d.delim}</b></span><span>열 이름을 누르면 정렬 · 숫자 열은 오른쪽에 통계</span>`;
+    this.el.meta.innerHTML = `<span>행 <b>${idx.length.toLocaleString('ko-KR')}</b>${qv ? ` / ${d.rows.length.toLocaleString('ko-KR')}` : ''}</span><span>열 <b>${d.header.length}</b> (숫자 ${numCols})</span>`;
     this.pool.forEach((r) => r.remove()); this.pool = [];
     this.renderedRange = null;
     this.renderRows();
@@ -363,6 +365,7 @@ export class DataView {
     this.addClip(v);
   }
 
+  // 영상 유형과 출처를 표시하고 재생 조작 요소를 구성한다.
   addClip(v) {
     this.clearEmptyFeed();
     const i = this.clips.length;
@@ -370,11 +373,12 @@ export class DataView {
     const video = h('video', { muted: true, playsinline: true, loop: v.end == null, preload: 'none', 'aria-label': v.title });
     video.muted = true;
     const kind = (v.kind || 'depth').toLowerCase();
+    const kindLabel = { depth: '깊이 영상', rgb: '컬러 영상' }[kind] ?? kind.toUpperCase();
     const fmtT = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
     const range = v.range || (v.start != null ? `${fmtT(v.start)}–${fmtT(v.end)}` : '');
     el.innerHTML = `
       <div class="tap" aria-hidden="true"></div>
-      <div class="ov-top"><div><span class="kind"><span class="badge">${kind === 'depth' ? 'DEPTH' : kind.toUpperCase()}</span>${v.sample ? '<span class="badge sample">SAMPLE</span>' : ''}${v.local ? '<span class="badge local">로컬</span>' : ''}</span><h3>${v.title}${v.part ? ` · ${v.part}` : ''}</h3><p class="meta">${[range, v.note].filter(Boolean).join(' · ')}</p></div><span class="idx"></span></div>
+      <div class="ov-top"><div><span class="kind"><span class="badge">${kindLabel}</span>${v.local ? '<span class="badge local">로컬</span>' : ''}</span><h3>${v.title}${v.part ? ` · ${v.part}` : ''}</h3><p class="meta">${[range, v.note].filter(Boolean).join(' · ')}</p></div><span class="idx"></span></div>
       ${kind === 'depth' && (v.depthMin != null || v.depthMax != null) ? `<div class="cbar ${v.nearIsWarm === false ? 'flip' : ''}" aria-hidden="true"><span>${v.depthMin ?? '가까움'}${v.depthMin != null ? 'mm' : ''}</span><i></i><span>${v.depthMax ?? '멂'}${v.depthMax != null ? 'mm' : ''}</span></div>` : ''}
       <div class="play-ind" aria-hidden="true">${icon('play')}</div>
       <div class="ov-bot"><div class="prog" role="slider" aria-label="재생 위치" tabindex="0"><i></i></div><div class="ctrl"><button class="pp" type="button" aria-label="재생/일시정지">${icon('play')}</button><button class="spd" type="button" aria-label="재생 속도">1×</button><span class="t">00:00</span></div></div>`;

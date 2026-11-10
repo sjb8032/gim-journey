@@ -31,15 +31,12 @@
       <div class="home-shade"></div>
     </div>
     <header class="topbar">
-      <a class="brand" href="#home"><span class="brand-mark"></span>GIM JOURNEY</a>
       <span class="spacer"></span>
-      <nav class="topnav" aria-label="바로가기"><a href="#journey">체험</a><a href="#data">데이터</a></nav>
       <button class="icon-btn js-fs" aria-label="전체 화면" title="전체 화면 (F)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
     </header>
     <div class="home-main">
-      <p class="eyebrow">DIGITAL TWIN · 김 밸류체인 6단계</p>
-      <h1 class="home-title">김의 여정<span class="en">THE JOURNEY OF GIM</span></h1>
-      <p class="home-sub">굴 껍데기 속 포자 한 톨이 부산항 컨테이너에 오르기까지. 여섯 개의 공장을 직접 돌려 보세요.</p>
+      <h1 class="home-title">김의 여정</h1>
+      <p class="home-sub">굴 껍데기 속 포자 한 톨이 부산항 컨테이너에 오르기까지.<br>여섯 개의 공장을 직접 돌려 보세요.</p>
       <div class="home-cta">
         <a class="btn btn-pearl btn-lg" href="#journey">체험 시작 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         <a class="btn btn-ghost btn-lg" href="#data">데이터 보기</a>
@@ -48,7 +45,7 @@
     </div>
     <aside class="home-film" id="home-film" hidden>
       <div class="film-frame" id="film-frame"></div>
-      <p class="film-cap"><span class="eyebrow">함께 보기</span><b id="film-title"></b><span id="film-src"></span></p>
+      <p class="film-cap"><span>함께 보기</span><b id="film-title"></b><span id="film-src"></span></p>
     </aside>
     <ol class="home-steps" id="home-steps" aria-label="여정 단계 바로가기"></ol>
     <div class="home-side">
@@ -63,16 +60,15 @@
       <a class="back-link" href="#home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg><span>처음으로</span></a>
       <span class="spacer"></span>
       <nav class="topnav" aria-label="바로가기"><a href="#data">데이터 보기</a></nav>
-      <button class="btn btn-quiet js-tour" aria-pressed="false" type="button">자동 시연</button>
       <button class="icon-btn js-fs" aria-label="전체 화면" title="전체 화면 (F)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
     </header>
     <div class="journey-wrap">
       <div class="journey-head">
-        <div>
-          <p class="eyebrow">THE JOURNEY · 6 STAGES</p>
-          <h2 class="display-l">종자에서 수출까지</h2>
-          <p class="muted">재배량을 바꾸면 여섯 단계의 생산량과 매출이 사슬처럼 함께 움직입니다. 카드를 눌러 각 공장의 운영 대시보드를 열어 보세요.</p>
-        </div>
+        <h2 class="display-l">종자에서 수출까지</h2>
+        <p class="muted">재배량을 바꾸면 여섯 단계의 생산량과 매출이 함께 변합니다. 카드를 눌러 각 공장의 운영 대시보드를 열어 보세요.</p>
+      </div>
+      <div class="track-wrap"><ol class="track" id="track" aria-label="여섯 단계"></ol></div>
+      <div class="journey-controls">
         <div class="harvest-ctl">
           <div class="row"><label for="j-R-range">재배량 (물김 기준)</label><span class="step-btns"><button id="j-minus" type="button" aria-label="50톤 줄이기">−</button><button id="j-plus" type="button" aria-label="50톤 늘리기">+</button></span></div>
           <div class="big-num"><output id="j-R" for="j-R-range">600</output><span>톤</span></div>
@@ -85,11 +81,10 @@
           <div><dt>체인 전체 영업이익</dt><dd id="j-profit">-</dd></div>
         </dl>
       </div>
-      <div class="track-wrap"><ol class="track" id="track" aria-label="여섯 단계"></ol></div>
       <div class="journey-bottom">
-        <figure class="panel"><div class="panel-h"><h3>단계별 매출 · 가치 사슬</h3><span class="eyebrow">막대를 누르면 공장으로</span></div><div id="j-chain" class="chart"></div></figure>
+        <figure class="panel"><div class="panel-h"><h3>단계별 매출</h3></div><div id="j-chain" class="chart"></div></figure>
         <div class="panel journey-actions">
-          <h3>시연 팁</h3>
+          <h3>체험 안내</h3>
           <p>재배량을 720톤 넘게 올려 보세요. 설계 용량을 넘긴 설비가 빨간 병목으로 바뀝니다.</p>
           <p>각 공장에서 <b>AI 최적화</b>를 누르면 파라미터가 자동으로 맞춰지고 ROI가 올라갑니다.</p>
           <button class="btn btn-pearl js-tour" aria-pressed="false" type="button">자동 시연 시작</button>

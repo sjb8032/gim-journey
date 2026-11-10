@@ -239,6 +239,7 @@ B.wheel = (M) => {
   };
 };
 
+// 온도 표시창을 포함한 냉동망 보관 설비를 만든다.
 B.freezer = (M) => {
   const g = new THREE.Group();
   mesh(rbox(2.3, 2.0, 1.7, 0.06), M.paintLight, 0, 1.0, 0, g);
@@ -248,7 +249,7 @@ B.freezer = (M) => {
   const strip = mesh(bx(2.2, 0.05, 0.05), M.accent, 0, 1.95, 0.86, g); strip.castShadow = false;
   const panel = canvasPanel(256, 96, (c, w, h, v = -20) => {
     c.fillStyle = '#071018'; c.fillRect(0, 0, w, h);
-    c.fillStyle = '#7fd4ff'; c.font = 'bold 54px "IBM Plex Mono", monospace'; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillStyle = '#7fd4ff'; c.font = 'bold 54px "IBM Plex Sans KR", sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
     c.fillText(`${v}°C`, w / 2, h / 2 + 4);
   });
   const disp = mesh(bx(0.6, 0.22, 0.02), new THREE.MeshBasicMaterial({ map: panel.tex }), -0.6, 1.55, 0.87, g); disp.castShadow = false;
@@ -472,6 +473,7 @@ B.packer = (M) => {
   };
 };
 
+// 계량값을 표시하는 물김 하역 저울을 만든다.
 B.scale = (M) => {
   const g = new THREE.Group();
   const body = new THREE.Group(); g.add(body);
@@ -483,7 +485,7 @@ B.scale = (M) => {
   mesh(bx(0.08, 1.4, 0.08), M.steel, 0.9, 0.7, 0.75, body);
   const panel = canvasPanel(256, 96, (c, w, h, v = 0) => {
     c.fillStyle = '#05120d'; c.fillRect(0, 0, w, h);
-    c.fillStyle = '#5ee0c1'; c.font = 'bold 50px "IBM Plex Mono", monospace'; c.textAlign = 'right'; c.textBaseline = 'middle';
+    c.fillStyle = '#5ee0c1'; c.font = 'bold 50px "IBM Plex Sans KR", sans-serif'; c.textAlign = 'right'; c.textBaseline = 'middle';
     c.fillText(`${Math.round(v).toLocaleString('en-US')} kg`, w - 14, h / 2 + 3);
   });
   const disp = mesh(bx(0.62, 0.24, 0.06), new THREE.MeshBasicMaterial({ map: panel.tex }), 0.9, 1.5, 0.75, body); disp.castShadow = false;
@@ -521,6 +523,7 @@ B.sorter = (M) => {
   };
 };
 
+// 경매 전광판과 입찰자 모형을 만든다.
 B.board = (M) => {
   const g = new THREE.Group();
   for (const x of [-1.3, 1.3]) mesh(bx(0.1, 1.2, 0.1), M.steelDark, x, 0.6, -0.4, g);
@@ -530,9 +533,9 @@ B.board = (M) => {
     c.strokeStyle = 'rgba(109,156,255,.25)'; c.lineWidth = 2;
     for (let y = 70; y < h; y += 52) { c.beginPath(); c.moveTo(20, y); c.lineTo(w - 20, y); c.stroke(); }
     c.fillStyle = '#6d9cff'; c.font = '600 30px "IBM Plex Sans KR", sans-serif'; c.textBaseline = 'middle';
-    c.fillText('전자 경매 · 물김', 26, 38);
+    c.fillText('전자 경매 | 물김', 26, 38);
     c.fillStyle = '#ff4d61'; c.beginPath(); c.arc(w - 40, 38, 9, 0, Math.PI * 2); c.fill();
-    c.fillStyle = '#e9eef5'; c.font = '500 24px "IBM Plex Mono", monospace';
+    c.fillStyle = '#e9eef5'; c.font = '500 24px "IBM Plex Sans KR", sans-serif';
     (st.rows || []).forEach((r, i) => {
       const y = 98 + i * 52;
       c.fillStyle = '#74829a'; c.fillText(r[0], 26, y);
@@ -556,6 +559,7 @@ B.board = (M) => {
   let acc = 0, price = 1450;
   return {
     group: g, len: 3.2, depth: 2.2, h: 2.8,
+    // 경매 전광판의 등급, 물량과 낙찰가를 갱신한다.
     tick(dt, t, s) {
       acc += dt;
       if (acc > 1.1) {
@@ -564,7 +568,7 @@ B.board = (M) => {
         const rows = [];
         for (let i = 0; i < 5; i++) {
           const lot = 120 + ((t * 3 + i * 7) | 0) % 80;
-          rows.push([`LOT ${lot}`, `${['상', '상', '중', '특상', '상'][i]} · ${(Math.random() * 3 + 1).toFixed(1)}t`, `${(price + (Math.random() - 0.5) * 120).toFixed(0)}원`, i < 3]);
+          rows.push([`LOT ${lot}`, `${['상', '상', '중', '특상', '상'][i]} | ${(Math.random() * 3 + 1).toFixed(1)}t`, `${(price + (Math.random() - 0.5) * 120).toFixed(0)}원`, i < 3]);
         }
         panel.redraw({ rows });
         bidders.forEach((b) => (b.material.emissiveIntensity = Math.random() < 0.35 * (0.4 + s.run) ? 3 : 0.3));

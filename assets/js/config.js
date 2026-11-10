@@ -24,7 +24,7 @@ export const STAGES = [
   // ───────────────────────────── 1. 종자 ─────────────────────────────
   {
     key: 'seed', no: 1, name: '종자', en: 'SEED', hue: '#b28dff',
-    title: '종자 배양 · 채묘', place: '종자 배양장', time: '04:00',
+    title: '종자 배양, 채묘', place: '종자 배양장', time: '04:00',
     tagline: '굴 껍데기 속 사상체를 키워 각포자를 방출시키고, 수차에 감은 김발에 붙입니다.',
     layout: 'line', env: 'lab',
     flowUnit: '책', days: 40,
@@ -68,18 +68,18 @@ export const STAGES = [
     ],
     extra: (r) => ({ label: '포자 부착 밀도', value: (18 + 54 * r.Q).toFixed(0), unit: '개/cm' }),
     logs: [
-      ['conch', '배양조 수온 {conch.temp}°C · 광량 {conch.light} μmol'],
-      ['mature', '광주기 {mature.photo}h 명기 · 성숙률 {rand:72:94}%'],
-      ['release', '각포자 방출 감지 · {release.dens}만 개/mL'],
-      ['wheel', '수차 {wheel.rpm} rpm · 이번 회차 {wheel.load}책 채묘'],
-      ['freeze', '냉동망 {rand:20:60}책 입고 · {freeze.ftemp}°C'],
+      ['conch', '배양조 수온 {conch.temp}°C | 광량 {conch.light} μmol'],
+      ['mature', '광주기 {mature.photo}h 명기 | 성숙률 {rand:72:94}%'],
+      ['release', '각포자 방출 감지 | {release.dens}만 개/mL'],
+      ['wheel', '수차 {wheel.rpm} rpm | 이번 회차 {wheel.load}책 채묘'],
+      ['freeze', '냉동망 {rand:20:60}책 입고 | {freeze.ftemp}°C'],
     ],
   },
 
   // ───────────────────────────── 2. 양식 ─────────────────────────────
   {
     key: 'farm', no: 2, name: '양식', en: 'FARM', hue: '#3fc8e4',
-    title: '해상 양식 · 채취', place: '신안 앞바다 부류식 양식장', time: '06:10',
+    title: '해상 양식 및 채취', place: '신안 앞바다 부류식 양식장', time: '06:10',
     tagline: '채묘망을 바다에 펼쳐 키우고, 채취선이 다 자란 김을 거둬 들입니다.',
     layout: 'sea', env: 'sea',
     flowUnit: '톤', days: 150,
@@ -119,24 +119,24 @@ export const STAGES = [
     ],
     scenarios: [
       { id: 'typhoon', name: '태풍 내습', icon: 'storm', desc: '시설 일부가 유실되고 채취선 출항이 제한됩니다.', lossAdd: { install: 0.14 }, cap: { harvest: 0.7 } },
-      { id: 'warm', name: '고수온 · 갯병', icon: 'thermo', desc: '수온이 4°C 올라 갯병 위험이 커졌습니다.', shift: { 'sensor.wtemp': 4 } },
+      { id: 'warm', name: '고수온', icon: 'thermo', desc: '수온이 4°C 올라 갯병 위험이 커졌습니다.', shift: { 'sensor.wtemp': 4 } },
       { id: 'pale', name: '영양염 부족', icon: 'drop', desc: '영양염이 떨어져 김이 누렇게 변하는 황백화가 우려됩니다.', shift: { 'sensor.din': -6 } },
     ],
     extra: (r) => ({ label: '1책당 생산', value: (r.out * 1000 / Math.max(1, r.inSeason)).toFixed(0), unit: 'kg/책' }),
     logs: [
-      ['sensor', '수온 {sensor.wtemp}°C · DIN {sensor.din} μM · 염분 {sensor.sal} psu'],
-      ['harvest', '채취선 2호 {rand:3:9}번 줄 채취 완료 · {rand:1.1:2.8}t'],
-      ['treat', '활성처리 {treat.cycle}일 주기 · 노출 {treat.expose}h'],
-      ['unload', '하역 {rand:40:120}포대 · 해수 냉각 {unload.chill}°C'],
-      ['install', '부이 장력 정상 · 수심 {install.depth}m'],
+      ['sensor', '수온 {sensor.wtemp}°C | DIN {sensor.din} μM | 염분 {sensor.sal} psu'],
+      ['harvest', '채취선 2호 {rand:3:9}번 줄 채취 완료 | {rand:1.1:2.8}t'],
+      ['treat', '활성처리 {treat.cycle}일 주기 | 노출 {treat.expose}h'],
+      ['unload', '하역 {rand:40:120}포대 | 해수 냉각 {unload.chill}°C'],
+      ['install', '부이 장력 정상 | 수심 {install.depth}m'],
     ],
   },
 
   // ───────────────────────────── 3. 경매 ─────────────────────────────
   {
     key: 'auction', no: 3, name: '경매', en: 'AUCTION', hue: '#6d9cff',
-    title: '산지 위판 · 전자 경매', place: '수협 산지 위판장', time: '07:30',
-    tagline: '물김 포대를 계량·검사해 등급을 매기고, 중도매인 전자 경매로 값을 정합니다.',
+    title: '산지 위판 및 경매', place: '수협 산지 위판장', time: '07:30',
+    tagline: '물김 포대를 계량, 검사해 등급을 매기고, 중도매인 전자 경매로 값을 정합니다.',
     layout: 'line', env: 'hall',
     flowUnit: '톤', days: 150,
     inLabel: '위판 물량', inUnit: '톤', outLabel: '낙찰 물량', outUnit: '톤',
@@ -145,7 +145,7 @@ export const STAGES = [
     econ: { basePriceKg: 1450, feeRate: 0.045, energyPerFlow: 4000, materialPerOut: 2500, fixed: 0.12e8, capex: 0.9e8, life: 12 },
     months: { labels: ['11월', '12월', '1월', '2월', '3월', '4월'], w: [0.08, 0.19, 0.25, 0.23, 0.16, 0.09] },
     machines: [
-      { id: 'weigh', name: '하역 · 계량', type: 'scale', hero: true, cap: 1.45, loss: 0.008, disp: { f: 1000 / 120, u: '포대/일' },
+      { id: 'weigh', name: '하역 | 계량', type: 'scale', hero: true, cap: 1.45, loss: 0.008, disp: { f: 1000 / 120, u: '포대/일' },
         params: [
           P('wait', '하역 대기', '분', 5, 120, 5, 40, 15, 25, { y: 0.04, q: 0.05 }),
           P('spray', '해수 살수', '회/h', 0, 12, 1, 3, 6, 3, { y: 0.03, q: 0.04 }),
@@ -166,7 +166,7 @@ export const STAGES = [
           P('reserve', '최저 입찰가', '원/kg', 600, 2400, 50, 1150, 1300, 300, { pm: 0.16, lm: 0.22 }),
           P('rounds', '경매 회차', '회/일', 1, 6, 1, 2, 3, 1.2, { c: 0.5, y: 0.02 }),
         ] },
-      { id: 'ship', name: '낙찰 · 출하', type: 'truck', cap: 1.5, loss: 0.008, disp: { f: 1, u: 't/일' },
+      { id: 'ship', name: '낙찰 | 출하', type: 'truck', cap: 1.5, loss: 0.008, disp: { f: 1, u: 't/일' },
         params: [
           P('swait', '출하 대기', 'h', 0.5, 8, 0.5, 3, 1.5, 1.5, { y: 0.06, q: 0.05 }),
           P('trucks', '배차 차량', '대', 2, 20, 1, 7, 10, 4, { c: 0.6, k: 0.08 }),
@@ -179,10 +179,10 @@ export const STAGES = [
     extra: (r) => ({ label: '평균 낙찰가', value: Math.round(r.priceUnit / 1000).toLocaleString('ko-KR'), unit: '원/kg' }),
     logs: [
       ['weigh', '{rand:12:40}번 포대 계량 {rand:112:128}kg'],
-      ['inspect', '검사 표본 {inspect.sample}% · 이물 {rand:2:18}ppm'],
-      ['grade', '등급 판정 · 상품 {rand:52:78}% / 중품 {rand:15:35}%'],
-      ['auction', '낙찰 {price}원/kg · 중도매인 {rand:101:160}번'],
-      ['ship', '{rand:2:8}호차 출하 · {rand:4.0:8.5}t'],
+      ['inspect', '검사 표본 {inspect.sample}% | 이물 {rand:2:18}ppm'],
+      ['grade', '등급 판정 | 상품 {rand:52:78}% / 중품 {rand:15:35}%'],
+      ['auction', '낙찰 {price}원/kg | 중도매인 {rand:101:160}번'],
+      ['ship', '{rand:2:8}호차 출하 | {rand:4.0:8.5}t'],
     ],
   },
 
@@ -232,12 +232,12 @@ export const STAGES = [
           P('hours', '건조 시간', 'h', 1, 5, 0.1, 2.2, 2.5, 0.8, { q: 0.06, c: -0.5 }),
           P('wind', '풍속', 'm/s', 1, 8, 0.1, 3, 4, 1.6, { c: 0.2, q: 0.03, e: 0.2 }),
         ] },
-      { id: 'vision', name: '박리 · 비전검사', type: 'inspector', cap: 1.6, loss: 0.012, disp: { f: 530 * 100 / 1200, u: '장/분' },
+      { id: 'vision', name: '박리 | 비전검사', type: 'inspector', cap: 1.6, loss: 0.012, disp: { f: 530 * 100 / 1200, u: '장/분' },
         params: [
           P('sens', '검출 민감도', '%', 50, 99, 1, 80, 88, 7, { q: 0.08, lm: 0.05 }),
           P('fps', '카메라 FPS', 'fps', 30, 240, 10, 90, 120, 50, { c: 0.4, e: 0.05 }),
         ] },
-      { id: 'pack', name: '결속 · 포장', type: 'packer', cap: 1.5, loss: 0.003, disp: { f: 530 / 20, u: '속/h' },
+      { id: 'pack', name: '결속 | 포장', type: 'packer', cap: 1.5, loss: 0.003, disp: { f: 530 / 20, u: '속/h' },
         params: [
           P('pspeed', '포장 속도', '속/분', 5, 40, 1, 15, 18, 8, { c: 0.5, y: 0.02 }),
         ] },
@@ -249,19 +249,19 @@ export const STAGES = [
     ],
     extra: (r) => ({ label: '장당 원가', value: Math.round(r.cost / Math.max(1, r.out * 100)).toLocaleString('ko-KR'), unit: '원/장' }),
     logs: [
-      ['wash', '세척 {wash.times}회 · 수온 {wash.wtemp}°C · 이물 {rand:0:6}건 제거'],
-      ['age', '숙성 탱크 #{rand:1:4} 교반 {age.stir} rpm · 염도 {age.salt}%'],
-      ['form', '초제 {form.speed}장/분 · 장당 {form.weight}g'],
-      ['dry', '건조실 {dry.temp}°C · 습도 {rand:18:34}% · 풍속 {dry.wind}m/s'],
-      ['vision', '비전검사 불량 {rand:1:7}장 제거 (구멍·이물)'],
-      ['pack', '{rand:120:420}속 결속 완료 · 팔레트 #{rand:10:99}'],
+      ['wash', '세척 {wash.times}회 | 수온 {wash.wtemp}°C | 이물 {rand:0:6}건 제거'],
+      ['age', '숙성 탱크 #{rand:1:4} 교반 {age.stir} rpm | 염도 {age.salt}%'],
+      ['form', '초제 {form.speed}장/분 | 장당 {form.weight}g'],
+      ['dry', '건조실 {dry.temp}°C | 습도 {rand:18:34}% | 풍속 {dry.wind}m/s'],
+      ['vision', '비전검사 불량 {rand:1:7}장 제거 (구멍, 이물)'],
+      ['pack', '{rand:120:420}속 결속 완료 | 팔레트 #{rand:10:99}'],
     ],
   },
 
   // ───────────────────────────── 5. 2차 가공 ─────────────────────────────
   {
     key: 'secondary', no: 5, name: '2차 가공', en: 'SECONDARY', hue: '#8fd46b',
-    title: '조미김 생산 라인', place: '김 스낵 · 조미김 공장', time: '14:00',
+    title: '조미김 생산 라인', place: '김 스낵 | 조미김 공장', time: '14:00',
     tagline: '마른김에서 이물을 골라내고, 굽고 조미해 다시 구운 뒤, 불량을 걸러 질소 포장합니다.',
     layout: 'line', env: 'factory2',
     flowUnit: '속', days: 250,
@@ -301,7 +301,7 @@ export const STAGES = [
           P('pieces', '재단 규격', '매/장', 4, 16, 1, 8, 8, 3, { q: 0.03 }),
           P('kspeed', '칼날 속도', 'rpm', 200, 1200, 20, 700, 600, 200, { c: 0.4, y: 0.03 }),
         ] },
-      { id: 'defect', name: '불량 선별 · 배출', type: 'defect', reject: true, cap: 1.5, loss: 0.02, disp: { f: 75 / 960, u: '봉/분' },
+      { id: 'defect', name: '불량 선별 | 배출', type: 'defect', reject: true, cap: 1.5, loss: 0.02, disp: { f: 75 / 960, u: '봉/분' },
         params: [
           P('burn', '탄 김 판정 기준', 'ΔE', 2, 12, 0.5, 6.5, 5, 2, { q: 0.08, lm: -0.02 }),
           P('broken', '파손 허용치', '%', 0, 20, 1, 8, 5, 4, { q: 0.06, lm: -0.02 }),
@@ -318,31 +318,32 @@ export const STAGES = [
         ] },
     ],
     scenarios: [
-      { id: 'oil', name: '식용유값 급등', icon: 'drop', desc: '참기름·식용유 원가가 40% 올랐습니다.', materialMul: 1.4 },
-      { id: 'claim', name: '이물 혼입 증가', icon: 'warn', desc: '원초에 패각·비닐 같은 이물이 늘어 선별 부담이 커졌습니다.', qMul: 0.9, lossAdd: { foreign: 0.03 } },
+      { id: 'oil', name: '식용유값 급등', icon: 'drop', desc: '참기름과 식용유 원가가 40% 올랐습니다.', materialMul: 1.4 },
+      { id: 'claim', name: '이물 혼입 증가', icon: 'warn', desc: '원초에 패각, 비닐 같은 이물이 늘어 선별 부담이 커졌습니다.', qMul: 0.9, lossAdd: { foreign: 0.03 } },
       { id: 'kfood', name: 'K-푸드 붐', icon: 'trend', desc: '해외 바이어 주문이 늘어 출고가가 오릅니다.', priceMul: 1.15 },
     ],
+    // 선별 배출률과 봉당 원가를 보조 지표로 표시한다.
     extra: (r) => {
       const rej = r.machines.filter((m) => m.def.reject || m.id === 'metal').reduce((s, m) => s + m.processed * m.loss, 0);
-      return { label: '이물·불량 배출', value: ((rej / Math.max(1e-9, r.flowIn)) * 100).toFixed(1), unit: '%', note: `봉당 원가 ${Math.round(r.cost / Math.max(1, r.out)).toLocaleString('ko-KR')}원` };
+      return { label: '이물 | 불량 배출', value: ((rej / Math.max(1e-9, r.flowIn)) * 100).toFixed(1), unit: '%', note: `봉당 원가 ${Math.round(r.cost / Math.max(1, r.out)).toLocaleString('ko-KR')}원` };
     },
     logs: [
-      ['foreign', '광학 선별 · 이물 {rand:1:6}건 배출 (패각·비닐·머리카락) · 에어 {foreign.air} bar'],
-      ['defect', '불량 배출 · 탄 김 {rand:3:15}장, 파손 {rand:2:10}장 → 불량함'],
-      ['roast1', '1차 굽기 {roast1.temp}°C · 벨트 {roast1.belt} m/min'],
-      ['season', '기름 {season.oil}g/장 · 소금 {season.salt}g/장 · 참기름 {season.sesame}%'],
-      ['roast2', '2차 굽기 {roast2.temp2}°C · 체류 {roast2.dwell}초'],
-      ['metal', '금속 검출 0건 · 테스트피스 통과'],
-      ['pack2', '질소 치환 {pack2.n2}% · {rand:600:1400}봉 포장'],
-      ['feed', '원초 {rand:20:60}속 투입 · {feed.fspeed}장/분'],
+      ['foreign', '광학 선별 | 이물 {rand:1:6}건 배출 (패각, 비닐, 머리카락) | 에어 {foreign.air} bar'],
+      ['defect', '불량 배출 | 탄 김 {rand:3:15}장, 파손 {rand:2:10}장 → 불량함'],
+      ['roast1', '1차 굽기 {roast1.temp}°C | 벨트 {roast1.belt} m/min'],
+      ['season', '기름 {season.oil}g/장 | 소금 {season.salt}g/장 | 참기름 {season.sesame}%'],
+      ['roast2', '2차 굽기 {roast2.temp2}°C | 체류 {roast2.dwell}초'],
+      ['metal', '금속 검출 0건 | 테스트피스 통과'],
+      ['pack2', '질소 치환 {pack2.n2}% | {rand:600:1400}봉 포장'],
+      ['feed', '원초 {rand:20:60}속 투입 | {feed.fspeed}장/분'],
     ],
   },
 
   // ───────────────────────────── 6. 유통 ─────────────────────────────
   {
     key: 'distribution', no: 6, name: '유통', en: 'DISTRIBUTION', hue: '#efdcae',
-    title: '콜드체인 물류 · 수출', place: '스마트 물류센터 · 부산항', time: '19:30',
-    tagline: '물류센터에서 보관·분류해 국내 매장으로, 컨테이너에 실어 세계로 보냅니다.',
+    title: '콜드체인 물류 | 수출', place: '스마트 물류센터 | 부산항', time: '19:30',
+    tagline: '물류센터에서 보관, 분류해 국내 매장으로, 컨테이너에 실어 세계로 보냅니다.',
     layout: 'line', env: 'port',
     flowUnit: '봉', days: 300,
     inLabel: '조미김 입고', inUnit: '봉', outLabel: '판매 출고', outUnit: '봉',
@@ -356,7 +357,7 @@ export const STAGES = [
           P('turn', '재고 회전', '일', 5, 60, 1, 28, 20, 10, { y: 0.02, k: 0.08 }),
           P('auto', '자동화율', '%', 20, 95, 1, 55, 80, 20, { c: 0.5, k: -0.12, e: 0.1 }),
         ] },
-      { id: 'cold', name: '항온 · 항습 보관', type: 'coldroom', cap: 1.6, loss: 0.002, disp: { f: 1 / 60, u: '박스/일' },
+      { id: 'cold', name: '항온 | 항습 보관', type: 'coldroom', cap: 1.6, loss: 0.002, disp: { f: 1 / 60, u: '박스/일' },
         params: [
           P('ctemp', '보관 온도', '°C', 0, 25, 0.5, 18, 12, 6, { y: 0.02, q: 0.04, e: -0.2 }),
           P('rh', '습도', '%RH', 20, 80, 1, 55, 40, 12, { q: 0.07, y: 0.02 }),
@@ -385,11 +386,11 @@ export const STAGES = [
     ],
     extra: (r) => ({ label: '수출액', value: (r.exportRevenue / 1e8).toFixed(1), unit: '억원' }),
     logs: [
-      ['wh', '입고 {rand:80:240}박스 · 자동화율 {wh.auto}%'],
-      ['cold', '보관실 {cold.ctemp}°C · {cold.rh}%RH 유지'],
-      ['sort', '분류 {sort.sspeed}박스/h · 수출 {sort.export}%'],
-      ['truck', '{rand:1:9}호차 출발 · 수도권 {rand:12:40}개 점포'],
-      ['port', '부산항 컨테이너 {rand:2:6}FEU 선적 · {port.countries}개국'],
+      ['wh', '입고 {rand:80:240}박스 | 자동화율 {wh.auto}%'],
+      ['cold', '보관실 {cold.ctemp}°C | {cold.rh}%RH 유지'],
+      ['sort', '분류 {sort.sspeed}박스/h | 수출 {sort.export}%'],
+      ['truck', '{rand:1:9}호차 출발 | 수도권 {rand:12:40}개 점포'],
+      ['port', '부산항 컨테이너 {rand:2:6}FEU 선적 | {port.countries}개국'],
     ],
   },
 ];

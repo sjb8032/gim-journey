@@ -42,6 +42,7 @@ let current = null;
 let dash = null;
 let dataView = null;
 
+// 선택한 화면을 활성화하고 필요한 콘텐츠와 브라우저 제목을 갱신한다.
 function activate(name, arg) {
   for (const [k, el] of Object.entries(views)) el.classList.toggle('is-active', k === name);
   if (name !== 'stage') dash?.hide();
@@ -53,7 +54,7 @@ function activate(name, arg) {
       .catch((e) => { console.error(e); views.data.querySelector('.data-body').innerHTML = '<p class="muted" style="padding:24px">데이터 뷰어를 불러오지 못했습니다.</p>'; });
   }
   if (name === 'journey') renderJourney();
-  const titles = { home: '김의 여정', journey: '김의 여정 · 여섯 단계', stage: `${STAGES[arg]?.name ?? ''} 공장 · 김의 여정`, data: '실험 데이터 · 김의 여정' };
+  const titles = { home: '김의 여정', journey: '김의 여정 | 여섯 단계', stage: `${STAGES[arg]?.name ?? ''} 공장 | 김의 여정`, data: '실험 데이터 · 김의 여정' };
   document.title = titles[name] || '김의 여정';
   current = { name, arg };
 }
@@ -142,6 +143,7 @@ const homeBg = (() => {
   };
 })();
 
+// 홈 배경 미디어와 여섯 단계 바로가기, 휴대폰 접속용 QR을 준비한다.
 function initHome() {
   const A = window.__ASSETS;
   const img = $('#home-img');
@@ -156,7 +158,7 @@ function initHome() {
     next();
   }
   // steps strip
-  $('#home-steps').innerHTML = STAGES.map((s) => `<li><a href="#stage-${s.no}" style="--hue:${s.hue}"><span class="n">${String(s.no).padStart(2, '0')}</span><span class="t">${s.name}</span><span class="e">${s.en}</span></a></li>`).join('');
+  $('#home-steps').innerHTML = STAGES.map((s) => `<li><a href="#stage-${s.no}" style="--hue:${s.hue}"><span class="n">${String(s.no).padStart(2, '0')}</span><span class="t">${s.name}</span></a></li>`).join('');
   // QR to open on a phone
   try {
     if (window.qrcode && /^https?:/.test(location.protocol)) {
@@ -217,30 +219,31 @@ const film = (() => {
 
 // ---------------------------------------------------------------- journey
 let journeyBuilt = false;
+// 시간·장소를 가로선 위에 배치하고 단계 카드와 재배량 조작 요소를 생성한다.
 function buildJourney() {
   const track = $('#track');
   track.innerHTML = STAGES.map((s, i) => `
     <li class="stage-card" style="--hue:${s.hue};--next:${STAGES[i + 1]?.hue ?? s.hue}">
+      <div class="stage-meta">
+        <time class="stage-time" datetime="${s.time}">${s.time}</time>
+        <p class="stage-place">${s.place.replaceAll('·', '|')}</p>
+      </div>
+      <span class="rail" aria-hidden="true"></span>
       <a class="stage-link" href="#stage-${s.no}" aria-label="${s.no}단계 ${s.name} 공장 열기">
         <div class="stage-media" style="view-transition-name: stage-media-${s.no}">
           <div class="ph" style="background:radial-gradient(120% 90% at 30% 20%, color-mix(in srgb, ${s.hue} 34%, #0b1018), #070a10 70%)"></div>
           <img alt="" loading="lazy">
-          <span class="stage-no">${String(s.no).padStart(2, '0')}</span>
-          <span class="stage-time">${s.time}</span>
           <span class="stage-alert" hidden>병목</span>
           <span class="stage-name-over">${s.name}</span>
         </div>
         <div class="stage-body">
-          <p class="stage-en">${s.en} · ${s.place}</p>
-          <p class="stage-desc">${s.tagline}</p>
+          <p class="stage-desc">${s.tagline.replaceAll('·', ' | ')}</p>
           <dl class="stage-io">
             <div><dt>${s.outLabel}</dt><dd data-k="out">-</dd></div>
             <div><dt>${s.key === 'auction' ? '거래액' : '매출'}</dt><dd data-k="rev">-</dd></div>
           </dl>
-          <span class="stage-cta">공장 열기 ${icon('arrowR')}</span>
         </div>
       </a>
-      <span class="rail" aria-hidden="true"></span>
     </li>`).join('');
   $$('.stage-card', track).forEach((li, i) => setImg($('img', li), window.__ASSETS.stages?.[STAGES[i].key]));
   const R = $('#j-R-range');
@@ -252,6 +255,7 @@ function buildJourney() {
   journeyBuilt = true;
 }
 
+// 현재 재배량에 맞춰 단계별 생산량, 요약 지표와 매출 그래프를 갱신한다.
 function renderJourney() {
   if (!journeyBuilt) buildJourney();
   const rs = app.results, S = app.state;
@@ -273,7 +277,7 @@ function renderJourney() {
   const totalProfit = rs.reduce((s, r) => s + r.profit, 0);
   const tp = money(totalProfit);
   $('#j-profit').innerHTML = `${tp.v}<small>${tp.u}</small>`;
-  chainChart($('#j-chain'), rs.map((r) => ({ name: r.st.name, hue: r.st.hue, value: r.headline, sub: `ROI ${(r.roi * 100).toFixed(0)}%` })), moneyStr, (i) => { location.hash = `#stage-${i + 1}`; });
+  chainChart($('#j-chain'), rs.map((r) => ({ name: r.st.name, hue: r.st.hue, value: r.headline })), moneyStr, (i) => { location.hash = `#stage-${i + 1}`; });
 }
 
 app.on(() => { if (current?.name === 'journey' || !journeyBuilt) { if (journeyBuilt) renderJourney(); } });

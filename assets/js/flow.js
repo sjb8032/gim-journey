@@ -26,12 +26,13 @@ export class FlowDiagram {
     this.ro.observe(host);
   }
 
+  // 투입부터 설비별 처리와 산출까지 공정 흐름도를 구성한다.
   build(stage) {
     this.stage = stage;
     const svg = this.svg;
     svg.innerHTML = '';
     const n = stage.machines.length;
-    const NW = 124, NH = 78, IOW = 108, OW = 150, H = 104, top = 6;
+    const NW = 124, NH = 78, IOW = 150, OW = 150, H = 104, top = 6;
     const fixed = IOW + n * NW + OW + 24;
     const avail = Math.max(0, this.host.clientWidth - 4);
     const gap = Math.max(30, Math.min(64, (avail - fixed) / (n + 1)));
@@ -61,7 +62,7 @@ export class FlowDiagram {
     }
     // input node
     const inG = el('g', { class: 'flow-io', transform: `translate(${xs[0]},${top})` });
-    inG.append(el('rect', { width: IOW, height: NH, rx: 10, fill: 'var(--ink-2)', stroke: 'var(--hair-2)' }));
+    inG.append(el('rect', { class: 'box', width: IOW, height: NH, rx: 10 }));
     inG.append(el('text', { class: 'cap', x: 12, y: 18 }, stage.inLabel));
     this.inBig = el('text', { class: 'big', x: 12, y: 44 }, '');
     this.inMid = el('text', { class: 'mid', x: 12, y: 63 }, '');
@@ -89,15 +90,15 @@ export class FlowDiagram {
     });
     // output node
     const oG = el('g', { class: 'flow-io', transform: `translate(${xs[n + 1]},${top})` });
-    oG.append(el('rect', { width: OW, height: NH, rx: 10, fill: 'color-mix(in srgb, var(--accent) 10%, var(--ink-2))', stroke: 'color-mix(in srgb, var(--accent) 45%, transparent)' }));
+    oG.append(el('rect', { class: 'box', width: OW, height: NH, rx: 10 }));
     oG.append(el('text', { class: 'cap', x: 12, y: 18 }, stage.outLabel));
-    this.outBig = el('text', { class: 'big', x: 12, y: 42 }, '');
-    this.outMoney = el('text', { class: 'money', x: 12, y: 61 }, '');
-    this.outMid = el('text', { class: 'mid', x: 12, y: 74 }, '');
-    oG.append(this.outBig, this.outMoney, this.outMid);
+    this.outBig = el('text', { class: 'big', x: 12, y: 44 }, '');
+    this.outMoney = el('text', { class: 'money', x: 12, y: 63 }, '');
+    oG.append(this.outBig, this.outMoney);
     svg.append(oG);
   }
 
+  // 현재 생산량, 설비 부하와 선택 상태를 흐름도에 반영한다.
   update(r, selected) {
     this.last = [r, selected];
     const st = this.stage;
@@ -107,7 +108,6 @@ export class FlowDiagram {
     this.inMid.textContent = `${count(r.flowIn)} ${U}/일`;
     this.outBig.textContent = `${count(r.out)} ${st.outUnit}`;
     this.outMoney.textContent = (st.key === 'auction' ? '거래액 ' : '매출 ') + moneyStr(r.headline);
-    this.outMid.textContent = `수율 ${(r.yield * 100).toFixed(1)}%`;
     const design = r.machines[0].cap / r.machines[0].def.cap;
     r.machines.forEach((mm, i) => {
       const nd = this.nodes[mm.id];
